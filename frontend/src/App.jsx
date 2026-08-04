@@ -3,6 +3,8 @@ import { Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing/Landing'
 import DashboardLayout from './components/layout/DashboardLayout'
 import Dashboard from './pages/Dashboard/Dashboard'
+import StudyMode from './pages/StudyMode/StudyMode'
+import QuestionMode from './pages/QuestionMode/QuestionMode'
 
 function App() {
   return (
@@ -10,11 +12,14 @@ function App() {
       {/* Public Landing Page */}
       <Route path="/" element={<Landing />} />
 
-      {/* Protected Dashboard Routes (simulated for now) */}
+      {/* Protected Dashboard Routes */}
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        {/* Future routes will go here, e.g. <Route path="/study-mode" ... /> */}
       </Route>
+
+      {/* Standalone Workspace Routes (No Sidebar) */}
+      <Route path="/study-mode" element={<StudyMode />} />
+      <Route path="/question-mode" element={<QuestionMode />} />
     </Routes>
   )
 }
