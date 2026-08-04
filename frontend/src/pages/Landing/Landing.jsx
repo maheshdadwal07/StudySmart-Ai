@@ -8,7 +8,7 @@ import WhyChoose from '../../components/landing/WhyChoose'
 import Testimonials from '../../components/landing/Testimonials'
 import Pricing from '../../components/landing/Pricing'
 import FAQ from '../../components/landing/FAQ'
-import CTA from '../../components/landing/CTA'
+import Reveal from '../../components/landing/Reveal'
 import Footer from '../../components/landing/Footer'
 
 export default function Landing() {
@@ -21,7 +21,22 @@ export default function Landing() {
       <Testimonials />
       <Pricing />
       <FAQ />
-      <CTA />
+      <section>
+        <div className="wrap">
+          <Reveal className="cta-banner">
+            <h2>Ready to study smarter?</h2>
+            <p>Join thousands turning documents into notes and questions every day.</p>
+            <div className="hero-ctas">
+              <a href="#" className="btn btn-secondary btn-lg" style={{ color: 'var(--primary)' }}>
+                Start Free Trial
+              </a>
+              <a href="#" className="btn btn-ghost btn-lg">
+                Watch Demo →
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
       <Footer />
     </>
   )
