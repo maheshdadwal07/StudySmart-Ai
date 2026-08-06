@@ -1,6 +1,8 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Landing from './pages/Landing/Landing'
+import LoginPage from './pages/Auth/LoginPage'
+import SignUpPage from './pages/Auth/SignUpPage'
 import DashboardLayout from './components/layout/DashboardLayout'
 import Dashboard from './pages/Dashboard/Dashboard'
 import StudyMode from './pages/StudyMode/StudyMode'
@@ -11,6 +13,10 @@ function App() {
     <Routes>
       {/* Public Landing Page */}
       <Route path="/" element={<Landing />} />
+
+      {/* Auth Routes */}
+      <Route path="/login"  element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
 
       {/* Protected Dashboard Routes */}
       <Route element={<DashboardLayout />}>

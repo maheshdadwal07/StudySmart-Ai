@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   return (
@@ -33,8 +34,8 @@ export default function Navbar() {
         </div>
         
         <div className="nav-cta">
-          <a href="#" className="btn btn-secondary">Log in</a>
-          <a href="#" className="btn btn-primary">Start Free Trial</a>
+          <Link to="/login" className="btn btn-secondary">Log in</Link>
+          <Link to="/signup" className="btn btn-primary">Start Free Trial</Link>
         </div>
         
         <button className="nav-mobile-toggle" aria-label="Open menu">
