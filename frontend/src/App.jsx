@@ -9,6 +9,8 @@ import DashboardLayout from './components/layout/DashboardLayout'
 import Dashboard from './pages/Dashboard/Dashboard'
 import ProfilePage from './pages/Profile/ProfilePage'
 import SettingsPage from './pages/Settings/SettingsPage'
+import HistoryPage from './pages/History/HistoryPage'
+import UploadsPage from './pages/Uploads/UploadsPage'
 import StudyMode from './pages/StudyMode/StudyMode'
 import QuestionMode from './pages/QuestionMode/QuestionMode'
 
@@ -25,6 +27,8 @@ function App() {
       {/* Dashboard routes (shared layout: sidebar + topnav) */}
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/history"   element={<HistoryPage />} />
+        <Route path="/uploads"   element={<UploadsPage />} />
         <Route path="/profile"   element={<ProfilePage />} />
         <Route path="/settings"  element={<SettingsPage />} />
       </Route>

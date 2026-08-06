@@ -4,6 +4,9 @@ import Navbar from '../../components/landing/Navbar';
 import Footer from '../../components/landing/Footer';
 import Reveal from '../../components/landing/Reveal';
 import FAQ from '../../components/landing/FAQ';
+import Features from '../../components/landing/Features';
+import WhyChoose from '../../components/landing/WhyChoose';
+import Testimonials from '../../components/landing/Testimonials';
 import '../../styles/landing.css';
 
 /* ── SVG helpers ── */
@@ -244,6 +247,11 @@ export default function PricingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── LANDING COMPONENTS ── */}
+      <Features />
+      <WhyChoose />
+      <Testimonials />
 
       {/* ── FAQ ───────────────────────────────────────────── */}
       <FAQ />

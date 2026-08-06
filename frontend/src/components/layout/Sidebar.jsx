@@ -48,7 +48,7 @@ export default function Sidebar({ isOpen, onClose }) {
       </nav>
 
       <div className="sidebar-footer">
-        <Link to="/logout" className="nav-item">
+        <Link to="/login" className="nav-item">
           <LogOut size={18} strokeWidth={1.7} />
           Logout
         </Link>

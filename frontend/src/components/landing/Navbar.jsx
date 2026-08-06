@@ -29,7 +29,7 @@ export default function Navbar() {
           <a href="#features">Features</a>
           <a href="#why">Why StudySmart</a>
           <a href="#testimonials">Testimonials</a>
-          <a href="#pricing">Pricing</a>
+          <Link to="/pricing">Pricing</Link>
           <a href="#faq">FAQ</a>
         </div>
         
