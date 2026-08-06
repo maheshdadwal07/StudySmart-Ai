@@ -1,0 +1,206 @@
+/* ============================================================
+   SETTINGS  —  tab strip + toggle switch + settings row
+   All other styles reused from dashboard.css and auth.css
+   ============================================================ */
+
+/* ---------- TAB STRIP ---------- */
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.settings-tabs::-webkit-scrollbar { display: none; }
+
+.settings-tab {
+  padding: 11px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: color .15s ease, border-color .15s ease;
+  margin-bottom: -1px;
+}
+
+.settings-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+.settings-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* ---------- SETTINGS ROW ---------- */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.settings-row-info { flex: 1; min-width: 0; }
+
+.settings-row-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.settings-row-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ---------- TOGGLE SWITCH ---------- */
+.toggle-wrap {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex: 0 0 auto;
+}
+
+.toggle-wrap input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--border);
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.toggle-wrap input:checked ~ .toggle-track {
+  background: var(--primary);
+}
+
+.toggle-track::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: transform .2s ease;
+}
+
+.toggle-wrap input:checked ~ .toggle-track::before {
+  transform: translateX(20px);
+}
+
+/* ---------- APPEARANCE CARDS ---------- */
+.appearance-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.appearance-card {
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  text-align: center;
+}
+
+.appearance-card:hover:not(.active) {
+  border-color: #d0d4dc;
+}
+
+.appearance-card.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.10);
+}
+
+.appearance-preview {
+  height: 52px;
+  border-radius: 9px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+
+.appearance-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---------- DANGER ZONE ---------- */
+.danger-zone {
+  border: 1.5px solid rgba(239,68,68,0.25);
+  border-radius: 14px;
+  padding: 20px 24px;
+  background: rgba(239,68,68,0.03);
+  margin-top: 24px;
+}
+
+.danger-zone h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #EF4444;
+  margin: 0 0 6px;
+}
+
+.danger-zone p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 16px;
+}
+
+.btn-danger {
+  background: #fff;
+  color: #EF4444;
+  border: 1.5px solid rgba(239,68,68,0.35);
+  border-radius: 12px;
+  padding: 9px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, box-shadow .15s;
+}
+
+.btn-danger:hover {
+  background: rgba(239,68,68,0.05);
+  border-color: rgba(239,68,68,0.55);
+  box-shadow: 0 4px 12px rgba(239,68,68,0.12);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 860px) {
+  .appearance-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .settings-tab { padding: 10px 14px; font-size: 12.5px; }
+  .appearance-grid { grid-template-columns: 1fr; }
+}
