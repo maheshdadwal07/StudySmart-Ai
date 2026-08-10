@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import AuthLayout from '../../components/forms/AuthLayout';
-import '../../styles/landing.css';
-import '../../styles/auth.css';
+import AuthLayout from '../components/forms/AuthLayout';
+import '../styles/landing.css';
+import '../styles/auth.css';
 
 function IconMail() {
   return (

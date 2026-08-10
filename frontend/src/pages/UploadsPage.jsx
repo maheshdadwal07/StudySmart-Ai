@@ -1,6 +1,6 @@
 import React from 'react';
 import { Upload, File, FileText, FileSpreadsheet, Trash2 } from 'lucide-react';
-import '../../styles/dashboard.css';
+import '../styles/dashboard.css';
 
 const UPLOADS_DATA = [
   { id: 1, title: 'Operating Systems — Unit 4 Notes.pdf', size: '3.2 MB', date: '2 hours ago', status: 'Processed' },

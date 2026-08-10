@@ -1,11 +1,11 @@
 import React from 'react';
 import { Upload } from 'lucide-react';
-import Button from '../../components/common/Button';
-import StatCard from '../../components/dashboard/StatCard';
-import WeeklyActivityChart from '../../components/dashboard/WeeklyActivityChart';
-import RecentUploads from '../../components/dashboard/RecentUploads';
-import ProgressCard from '../../components/dashboard/ProgressCard';
-import { statCardsData, quickActionsData } from '../../data/dashboardData';
+import Button from '../components/common/Button';
+import StatCard from '../components/dashboard/StatCard';
+import WeeklyActivityChart from '../components/dashboard/WeeklyActivityChart';
+import RecentUploads from '../components/dashboard/RecentUploads';
+import ProgressCard from '../components/dashboard/ProgressCard';
+import { statCardsData, quickActionsData } from '../data/dashboardData';
 
 export default function Dashboard() {
   return (

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, FileDown } from 'lucide-react';
-import Button from '../../components/common/Button';
-import QuestionConfig from '../../components/sections/question/QuestionConfig';
-import QuestionResults from '../../components/sections/question/QuestionResults';
-import { documentMeta } from '../../data/questionData';
-import '../../styles/question.css';
+import Button from '../components/common/Button';
+import QuestionConfig from '../components/sections/question/QuestionConfig';
+import QuestionResults from '../components/sections/question/QuestionResults';
+import { documentMeta } from '../data/questionData';
+import '../styles/question.css';
 
 export default function QuestionMode() {
   const [difficulty, setDifficulty] = useState("medium");

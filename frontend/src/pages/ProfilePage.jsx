@@ -4,9 +4,9 @@ import {
   MapPin, Mail, Phone, GraduationCap, Target,
   Calendar, Edit2, Check, X
 } from 'lucide-react';
-import StatCard from '../../components/dashboard/StatCard';
-import '../../styles/dashboard.css';
-import '../../styles/auth.css';
+import StatCard from '../components/dashboard/StatCard';
+import '../styles/dashboard.css';
+import '../styles/auth.css';
 
 /* ── Profile stat cards ── */
 const PROFILE_STATS = [

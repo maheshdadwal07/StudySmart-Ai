@@ -1,6 +1,6 @@
 import React from 'react';
 import { History, Search, Filter, MoreHorizontal } from 'lucide-react';
-import '../../styles/dashboard.css';
+import '../styles/dashboard.css';
 
 const HISTORY_DATA = [
   { id: 1, title: 'Operating Systems — Unit 4 Notes', type: 'PDF', date: '2 hours ago', action: 'Question generation' },

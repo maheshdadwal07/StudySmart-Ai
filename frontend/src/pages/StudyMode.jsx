@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Plus, RefreshCw, Download, UploadCloud } from 'lucide-react';
-import Button from '../../components/common/Button';
-import DocumentPreview from '../../components/sections/study/DocumentPreview';
-import StudyWorkspace from '../../components/sections/study/StudyWorkspace';
-import { documentMeta } from '../../data/studyData';
-import '../../styles/study.css';
+import Button from '../components/common/Button';
+import DocumentPreview from '../components/sections/study/DocumentPreview';
+import StudyWorkspace from '../components/sections/study/StudyWorkspace';
+import { documentMeta } from '../data/studyData';
+import '../styles/study.css';
 
 export default function StudyMode() {
   const [showUploadScreen, setShowUploadScreen] = useState(false);

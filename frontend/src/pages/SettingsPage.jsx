@@ -3,9 +3,9 @@ import {
   User, Bell, Palette, Lock, Shield,
   Mail, Phone, MapPin, Save
 } from 'lucide-react';
-import '../../styles/dashboard.css';
-import '../../styles/auth.css';
-import '../../styles/settings.css';
+import '../styles/dashboard.css';
+import '../styles/auth.css';
+import '../styles/settings.css';
 
 /* ── Toggle switch — local helper renders the pseudo-element pattern ── */
 function Toggle({ id, checked, onChange }) {
