@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     cloudinary_api_key: str = ""
     cloudinary_api_secret: str = ""
     max_upload_size_mb: int = 10
+    max_extracted_text_chars: int = 1000000
 
     @property
     def get_jwt_access_secret(self) -> str:

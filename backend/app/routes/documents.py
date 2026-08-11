@@ -1,13 +1,14 @@
 import uuid
 from typing import Optional
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query, BackgroundTasks
 from bson import ObjectId
 
 from app.models.document import DocumentResponse, DocumentListResponse, CloudinaryStorage
 from app.database import get_database
 from app.routes.auth import get_current_user
 from app.utils.cloudinary_helper import upload_document, delete_document
+from app.utils.document_parser import process_document_content, DocumentParserException
 from app.config import settings
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -158,3 +159,100 @@ async def delete_document_route(
     await db.documents.delete_one({"_id": obj_id})
     
     return {"detail": "Document deleted successfully"}
+
+async def background_process_document(document_id: str, file_type: str, secure_url: str, public_id: str = None):
+    db = get_database()
+    obj_id = ObjectId(document_id)
+    
+    try:
+        extracted_text, pages = await process_document_content(file_type, secure_url, public_id)
+        
+        if not extracted_text:
+            raise DocumentParserException("No meaningful text could be extracted from the document.")
+            
+        if len(extracted_text) > settings.max_extracted_text_chars:
+            raise DocumentParserException(f"Extracted text exceeds the maximum allowed length of {settings.max_extracted_text_chars} characters.")
+            
+        now = datetime.now(timezone.utc)
+        
+        # Success Update
+        await db.documents.update_one(
+            {"_id": obj_id},
+            {
+                "$set": {
+                    "status": "Processed",
+                    "extracted_text": extracted_text,
+                    "processing_metadata.pages": pages,
+                    "processing_metadata.error": None,
+                    "updated_at": now
+                }
+            }
+        )
+        
+    except Exception as e:
+        now = datetime.now(timezone.utc)
+        error_message = str(e) if isinstance(e, DocumentParserException) else "An unexpected error occurred during processing."
+        
+        # Failure Update
+        await db.documents.update_one(
+            {"_id": obj_id},
+            {
+                "$set": {
+                    "status": "Failed",
+                    "processing_metadata.error": error_message,
+                    "updated_at": now
+                }
+            }
+        )
+
+@router.post("/{document_id}/process", status_code=status.HTTP_202_ACCEPTED)
+async def process_document(
+    document_id: str,
+    background_tasks: BackgroundTasks,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        obj_id = ObjectId(document_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    db = get_database()
+    doc = await db.documents.find_one({"_id": obj_id, "user_id": current_user["_id"]})
+    
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    if doc.get("status") == "Processing":
+        raise HTTPException(status_code=400, detail="Document is already processing")
+        
+    if doc.get("status") == "Processed":
+        raise HTTPException(status_code=400, detail="Document is already processed")
+        
+    storage = doc.get("storage", {})
+    secure_url = storage.get("secure_url")
+    
+    if not secure_url:
+        raise HTTPException(status_code=500, detail="Document storage URL is missing")
+        
+    # Set status to Processing
+    now = datetime.now(timezone.utc)
+    await db.documents.update_one(
+        {"_id": obj_id},
+        {
+            "$set": {
+                "status": "Processing",
+                "updated_at": now
+            }
+        }
+    )
+    
+    # Queue background task
+    background_tasks.add_task(
+        background_process_document,
+        document_id=document_id,
+        file_type=doc.get("file_type"),
+        secure_url=secure_url,
+        public_id=storage.get("public_id")
+    )
+    
+    return {"detail": "Processing started", "status": "Processing"}
