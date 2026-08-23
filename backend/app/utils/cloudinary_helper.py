@@ -18,24 +18,24 @@ def init_cloudinary():
     return True
 
 def upload_document(file_content: bytes, public_id: str, original_filename: str) -> dict:
-    """Uploads a document to Cloudinary as a raw resource type."""
+    """Uploads a document to Cloudinary as an authenticated raw resource type."""
     try:
         response = cloudinary.uploader.upload(
             file_content,
             public_id=public_id,
             resource_type="raw",
-            # We preserve the extension in Cloudinary
+            type="authenticated",
             use_filename=True,
             unique_filename=False
         )
         return response
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Cloudinary upload failed: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Cloudinary upload failed")
 
-def delete_document(public_id: str, resource_type: str = "raw") -> dict:
+def delete_document(public_id: str, resource_type: str = "raw", delivery_type: str = "authenticated") -> dict:
     """Deletes a document from Cloudinary."""
     try:
-        response = cloudinary.uploader.destroy(public_id, resource_type=resource_type)
+        response = cloudinary.uploader.destroy(public_id, resource_type=resource_type, type=delivery_type)
         return response
     except Exception as e:
         # We don't raise HTTP exception here, let the caller handle it if needed

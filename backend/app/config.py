@@ -17,6 +17,23 @@ class Settings(BaseSettings):
     max_upload_size_mb: int = 10
     max_extracted_text_chars: int = 1000000
 
+    # Email
+    email_host: str = ""
+    email_port: int = 587
+    email_username: str = ""
+    email_password: str = ""
+    email_from: str = "noreply@studysmart.ai"
+    email_from_name: str = "StudySmart AI"
+
+    # AI Configuration
+    ai_provider: str = "gemini"
+    ai_model: str = "gemini-2.5-flash"
+    ai_prompt_version: str = "v1"
+    ai_max_chunk_size: int = 15000  # Default to ~15k chars
+    ai_chunk_overlap: int = 200
+    gemini_api_key: str = ""
+    openai_api_key: str = ""
+
     @property
     def get_jwt_access_secret(self) -> str:
         return self.jwt_access_secret if self.jwt_access_secret else "supersecret_access"

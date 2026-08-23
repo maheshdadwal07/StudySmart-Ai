@@ -57,3 +57,16 @@ def verify_refresh_token(token: str) -> Tuple[str, str]:
         return user_id, session_id
     except PyJWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
+
+import secrets
+def generate_otp() -> str:
+    """Generates a secure 6-digit OTP."""
+    return "".join(str(secrets.randbelow(10)) for _ in range(6))
+
+def hash_otp(otp: str) -> str:
+    """Hashes the OTP for storage using SHA-256."""
+    return hashlib.sha256(otp.encode()).hexdigest()
+
+def verify_otp(plain_otp: str, hashed_otp: str) -> bool:
+    """Verifies a plaintext OTP against its hash."""
+    return hash_otp(plain_otp) == hashed_otp

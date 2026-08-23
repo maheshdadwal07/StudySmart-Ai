@@ -17,6 +17,22 @@ async def connect_to_mongo():
         # Initialize indexes
         database = get_database()
         await database.users.create_index([("email", ASCENDING)], unique=True)
+        await database.documents.create_index(
+            [("user_id", ASCENDING), ("file_hash", ASCENDING)],
+            unique=True,
+            partialFilterExpression={"file_hash": {"$exists": True}}
+        )
+        
+        # Study sessions indexes
+        await database.study_sessions.create_index(
+            [("user_id", ASCENDING), ("document_id", ASCENDING)]
+        )
+        await database.study_sessions.create_index(
+            [("cache_key", ASCENDING)],
+            unique=True,
+            partialFilterExpression={"status": {"$in": ["Queued", "Generating", "Completed"]}}
+        )
+        
         print("MongoDB indexes initialized.")
     except ConnectionFailure as e:
         print(f"Could not connect to MongoDB: {e}")

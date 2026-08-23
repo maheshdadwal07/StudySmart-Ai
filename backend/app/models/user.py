@@ -13,6 +13,12 @@ class SessionModel(BaseModel):
     expires_at: datetime
     revoked: bool = False
 
+class OTPModel(BaseModel):
+    hashed_otp: str
+    expires_at: datetime
+    attempts: int = 0
+    last_sent_at: datetime
+
 class UserCreate(BaseModel):
     name: str = Field(..., min_length=1)
     email: EmailStr
@@ -26,6 +32,7 @@ class UserResponse(BaseModel):
     id: str = Field(alias="_id")
     name: str
     email: EmailStr
+    email_verified: bool = False
     preferences: UserPreferences
     created_at: datetime
     updated_at: datetime
@@ -35,6 +42,9 @@ class UserInDB(BaseModel):
     name: str
     email: EmailStr
     password_hash: str
+    email_verified: bool = False
+    verification: Optional[OTPModel] = None
+    password_reset: Optional[OTPModel] = None
     preferences: UserPreferences = Field(default_factory=UserPreferences)
     sessions: List[SessionModel] = []
     created_at: datetime
