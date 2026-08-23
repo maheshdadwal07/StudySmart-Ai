@@ -70,9 +70,6 @@ export default function RecentUploads({ documents = [] }) {
                   <div className="doc-meta">Uploaded {dateStr} · {sizeStr}</div>
                 </div>
                 <span className={`doc-tag ${tagClass}`}>{tagText}</span>
-                <div className="doc-more">
-                  <MoreHorizontal size={16} color="#6B7280" />
-                </div>
               </div>
             );
           })

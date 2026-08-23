@@ -9,6 +9,7 @@ import ProgressCard from '../components/dashboard/ProgressCard';
 import { statCardsData, quickActionsData } from '../data/dashboardData';
 import { useAuth } from '../contexts/AuthContext';
 import { apiFetch } from '../api/client';
+import { useDocumentUpload } from '../hooks/useDocumentUpload';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -16,7 +17,6 @@ export default function Dashboard() {
   const fileInputRef = useRef(null);
   
   const [documents, setDocuments] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
   const [stats, setStats] = useState(statCardsData);
 
   const firstName = user?.name?.split(' ')[0] || 'User';
@@ -26,7 +26,7 @@ export default function Dashboard() {
       const res = await apiFetch('/api/documents');
       if (res.ok) {
         const data = await res.json();
-        const docs = data.documents || [];
+        const docs = data.items || [];
         setDocuments(docs);
         
         // update stats
@@ -49,6 +49,8 @@ export default function Dashboard() {
     fetchDocuments();
   }, []);
 
+  const { status, errorMessage, fileName, uploadFile } = useDocumentUpload(fetchDocuments);
+
   const handleUploadClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -57,32 +59,8 @@ export default function Dashboard() {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    
-    // reset input so same file can be chosen again if needed
-    e.target.value = null;
-    
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-      const res = await apiFetch('/api/documents/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.ok) {
-        await fetchDocuments();
-      } else {
-        const err = await res.json();
-        alert('Upload failed: ' + (err.detail || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Upload failed.');
-    } finally {
-      setIsUploading(false);
-    }
+    e.target.value = null; // reset input so same file can be chosen again
+    await uploadFile(file);
   };
 
   return (
@@ -95,15 +73,21 @@ export default function Dashboard() {
         onChange={handleFileChange} 
       />
       
-      <div className="page-head">
+      <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1>Good morning, {firstName} 👋</h1>
           <p>Here's what's happening with your study material today.</p>
         </div>
-        <Button variant="primary" onClick={handleUploadClick} disabled={isUploading}>
-          <Upload size={15} strokeWidth={2} />
-          {isUploading ? 'Uploading...' : 'Upload Document'}
-        </Button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+          <Button variant="primary" onClick={handleUploadClick} disabled={status === 'uploading'}>
+            <Upload size={15} strokeWidth={2} />
+            {status === 'uploading' ? 'Uploading...' : 'Upload Document'}
+          </Button>
+          
+          {status === 'uploading' && <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Uploading {fileName}...</div>}
+          {status === 'success' && <div style={{ fontSize: '13px', color: '#16A34A', fontWeight: 500 }}>{errorMessage || 'Upload complete'}</div>}
+          {status === 'error' && <div style={{ fontSize: '13px', color: '#EF4444' }}>{errorMessage}</div>}
+        </div>
       </div>
 
       <div className="stat-grid">
@@ -151,8 +135,8 @@ export default function Dashboard() {
             </div>
             <div className="upload-cta">
               <Upload size={34} color="#9AA1AE" strokeWidth={1.7} style={{ margin: '0 auto 12px' }} />
-              <div className="t">{isUploading ? 'Uploading...' : 'Click or Drag & drop a file'}</div>
-              <div className="s">PDF or DOCX — up to 25MB</div>
+              <div className="t">{status === 'uploading' ? 'Uploading...' : 'Click or Drag & drop a file'}</div>
+              <div className="s">PDF or DOCX — up to 10MB</div>
             </div>
           </div>
         </div>
