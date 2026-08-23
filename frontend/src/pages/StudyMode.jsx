@@ -7,6 +7,7 @@ import '../styles/study.css';
 
 export default function StudyMode() {
   const [showUploadScreen, setShowUploadScreen] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState('');
 
   return (
     <div className="study-app">
@@ -48,7 +49,10 @@ export default function StudyMode() {
             <p>We'll turn it into a summary, smart notes, key points, flashcards, and a learning assistant.</p>
             <div 
               className="dropzone" 
-              onClick={() => alert("Study Mode AI processing will be available in Step 5.")}
+              onClick={() => setUploadMessage('Study Mode AI processing will be available in Step 5.')}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && setUploadMessage('Study Mode AI processing will be available in Step 5.')}
             >
               <div className="dropzone-icon">
                 <UploadCloud size={30} stroke="#4F46E5" strokeWidth={1.8} />
@@ -56,7 +60,8 @@ export default function StudyMode() {
               <div className="t">Drag &amp; drop your file here</div>
               <div className="s">or click to browse from your computer</div>
             </div>
-            <div className="format-row">
+            {uploadMessage && <div style={{ color: '#4F46E5', marginTop: '16px', fontWeight: 500 }}>{uploadMessage}</div>}
+            <div className="format-row" style={{ marginTop: '24px' }}>
               <span className="format-chip">📄 PDF</span>
               <span className="format-chip">📝 DOCX</span>
               <span className="format-chip">📊 PPT</span>

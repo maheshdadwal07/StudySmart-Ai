@@ -115,7 +115,15 @@ export default function Dashboard() {
               {quickActionsData.map((action, idx) => {
                 const Icon = action.icon;
                 return (
-                  <div className="quick-action" key={idx}>
+                  <div 
+                    className="quick-action" 
+                    key={idx} 
+                    onClick={() => navigate(action.route)}
+                    style={{ cursor: 'pointer' }}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Enter' && navigate(action.route)}
+                  >
                     <div className="qi">
                       <Icon size={16} color={action.iconColor} strokeWidth={1.6} />
                     </div>

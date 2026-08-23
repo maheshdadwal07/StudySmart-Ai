@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, File, FileText, FileSpreadsheet, Trash2, Play } from 'lucide-react';
+import { Upload, FileText, Trash2, Play, BookOpen, HelpCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../api/client';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
+import ConfirmModal from '../components/common/ConfirmModal';
 import '../styles/dashboard.css';
 
 export default function UploadsPage() {
   const [documents, setDocuments] = useState([]);
   const [actionMessage, setActionMessage] = useState({ text: '', type: '' });
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const fetchDocuments = async () => {
     try {
@@ -52,10 +59,21 @@ export default function UploadsPage() {
     await uploadFile(file);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this document?')) return;
+  const confirmDelete = (id) => {
+    setDocumentToDelete(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteModalOpen(false);
+    setDocumentToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!documentToDelete) return;
+    setIsDeleting(true);
     try {
-      const res = await apiFetch(`/api/documents/${id}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/documents/${documentToDelete}`, { method: 'DELETE' });
       if (res.ok) {
         await fetchDocuments();
         setActionMessage({ text: 'Document deleted successfully.', type: 'success' });
@@ -68,6 +86,10 @@ export default function UploadsPage() {
       console.error(error);
       setActionMessage({ text: 'Unable to delete document. Please try again.', type: 'error' });
       setTimeout(() => setActionMessage({ text: '', type: '' }), 3000);
+    } finally {
+      setIsDeleting(false);
+      setDeleteModalOpen(false);
+      setDocumentToDelete(null);
     }
   };
 
@@ -173,12 +195,27 @@ export default function UploadsPage() {
                       </td>
                       <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{dateStr}</td>
                       <td style={{ padding: '16px', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                        {item.status === 'Processed' && (
+                          <>
+                            <button onClick={() => navigate(`/study-mode?document_id=${item._id}`)} title="Study Now" aria-label="Study Now" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#16A34A', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500 }}>
+                              <BookOpen size={16} /> Study
+                            </button>
+                            <button onClick={() => navigate(`/question-mode?document_id=${item._id}`)} title="Generate Quiz" aria-label="Generate Quiz" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4F46E5', display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 500 }}>
+                              <HelpCircle size={16} /> Quiz
+                            </button>
+                          </>
+                        )}
                         {(item.status === 'Pending' || item.status === 'Failed') && (
-                          <button onClick={() => handleProcess(item._id)} title={item.status === 'Failed' ? "Retry Processing" : "Process Document"} style={{ background: 'none', border: 'none', cursor: 'pointer', color: item.status === 'Failed' ? '#F59E0B' : '#4F46E5' }}>
+                          <button onClick={() => handleProcess(item._id)} title={item.status === 'Failed' ? "Retry Processing" : "Process Document"} aria-label={item.status === 'Failed' ? "Retry Processing" : "Process Document"} style={{ background: 'none', border: 'none', cursor: 'pointer', color: item.status === 'Failed' ? '#F59E0B' : '#4F46E5' }}>
                             <Play size={16} />
                           </button>
                         )}
-                        <button onClick={() => handleDelete(item._id)} title="Delete Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
+                        {item.status === 'Processing' && (
+                          <span style={{ fontSize: 12, color: '#F59E0B', fontWeight: 500, marginRight: 8, display: 'flex', alignItems: 'center' }}>
+                            Processing...
+                          </span>
+                        )}
+                        <button onClick={() => confirmDelete(item._id)} title="Delete Document" aria-label="Delete Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444' }}>
                           <Trash2 size={16} />
                         </button>
                       </td>
@@ -190,6 +227,15 @@ export default function UploadsPage() {
           </table>
         </div>
       </div>
+      
+      <ConfirmModal 
+        isOpen={deleteModalOpen}
+        title="Delete Document?"
+        message="This will permanently remove this document and its stored file. This action cannot be undone."
+        onCancel={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+      />
     </>
   );
 }

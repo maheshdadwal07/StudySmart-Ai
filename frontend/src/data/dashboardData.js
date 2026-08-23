@@ -143,18 +143,21 @@ export const quickActionsData = [
     title: "Start Study Mode",
     desc: "Summaries, notes & flashcards",
     icon: BookOpen,
-    iconColor: "#4F46E5"
+    iconColor: "#4F46E5",
+    route: "/study-mode"
   },
   {
     title: "Generate Questions",
     desc: "MCQs, interview & coding sets",
     icon: HelpCircle,
-    iconColor: "#06B6D4"
+    iconColor: "#06B6D4",
+    route: "/question-mode"
   },
   {
     title: "View History",
     desc: "All past documents & results",
     icon: History,
-    iconColor: "#22C55E"
+    iconColor: "#22C55E",
+    route: "/history"
   }
 ];
