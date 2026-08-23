@@ -21,27 +21,8 @@ export default function WeeklyActivityChart() {
         </div>
       </div>
       
-      <div className="chart-area">
-        {weeklyActivityData.map((data, idx) => (
-          <div className="chart-col" key={idx}>
-            <div className="chart-bar-wrap">
-              <div className="chart-bar docs" style={{ height: `${data.docs}%` }}></div>
-              <div className="chart-bar questions" style={{ height: `${data.questions}%` }}></div>
-            </div>
-            <div className="chart-day">{data.day}</div>
-          </div>
-        ))}
-      </div>
-      
-      <div className="chart-legend">
-        <div className="legend-item">
-          <span className="legend-dot" style={{ background: 'var(--primary)' }}></span>
-          Documents processed
-        </div>
-        <div className="legend-item">
-          <span className="legend-dot" style={{ background: 'var(--accent)' }}></span>
-          Questions generated
-        </div>
+      <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+        <p style={{ fontSize: 13.5 }}>Activity tracking will be available when you complete your first study session.</p>
       </div>
     </div>
   );

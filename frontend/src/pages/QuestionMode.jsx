@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, FileDown } from 'lucide-react';
 import Button from '../components/common/Button';
-import QuestionConfig from '../components/sections/question/QuestionConfig';
-import QuestionResults from '../components/sections/question/QuestionResults';
-import { documentMeta } from '../data/questionData';
+import '../styles/question.css';
 import '../styles/question.css';
 
 export default function QuestionMode() {
@@ -21,38 +19,28 @@ export default function QuestionMode() {
             <ChevronLeft size={16} stroke="#374151" strokeWidth={1.8} />
           </Link>
           <div>
-            <div className="doc-title">Question Mode — {documentMeta.title}</div>
-            <div className="doc-meta-sm">{documentMeta.pages} pages · {documentMeta.status}</div>
+            <div className="doc-title">Question Mode</div>
+            <div className="doc-meta-sm">Coming Soon</div>
           </div>
         </div>
         <div className="topbar-right">
-          <Button variant="secondary">
+          <Button variant="secondary" disabled>
             <FileDown size={15} stroke="#111827" strokeWidth={1.9} />
             <span className="lbltext">Export PDF</span>
           </Button>
-          <Button variant="secondary">
+          <Button variant="secondary" disabled>
             <FileDown size={15} stroke="#111827" strokeWidth={1.9} />
             <span className="lbltext">Export DOCX</span>
           </Button>
         </div>
       </div>
 
-      <div className="question-body">
-        {/* CONFIG PANEL */}
-        <QuestionConfig 
-          difficulty={difficulty}
-          setDifficulty={setDifficulty}
-          selectedTypes={selectedTypes}
-          setSelectedTypes={setSelectedTypes}
-          questionCount={questionCount}
-          setQuestionCount={setQuestionCount}
-        />
-
-        {/* RESULTS AREA */}
-        <QuestionResults 
-          difficulty={difficulty}
-          documentMeta={documentMeta}
-        />
+      <div className="question-body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 60px)' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📝</div>
+          <h3 style={{ color: 'var(--text)', marginBottom: 8 }}>Question Mode is coming soon</h3>
+          <p style={{ fontSize: 14 }}>AI-generated quizzes, practice questions, and mock tests are part of the next phase.</p>
+        </div>
       </div>
     </div>
   );

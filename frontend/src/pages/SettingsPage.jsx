@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import {
   User, Bell, Palette, Lock, Shield,
   Mail, Phone, MapPin, Save
@@ -24,21 +25,21 @@ function Toggle({ id, checked, onChange }) {
 
 /* ── Tabs config ── */
 const TABS = [
-  { id: 'account',       label: 'Account',       icon: User },
-  { id: 'notifications', label: 'Notifications',  icon: Bell },
-  { id: 'appearance',    label: 'Appearance',     icon: Palette },
-  { id: 'password',      label: 'Password',       icon: Lock },
-  { id: 'privacy',       label: 'Privacy',        icon: Shield },
+  { id: 'account', label: 'Account', icon: User },
+  { id: 'notifications', label: 'Notifications', icon: Bell },
+  { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'password', label: 'Password', icon: Lock },
+  { id: 'privacy', label: 'Privacy', icon: Shield },
 ];
 
 /* ── Password strength (same logic as SignUpPage) ── */
 function pwStrength(pw) {
   if (!pw) return 0;
   let s = 0;
-  if (pw.length >= 8)           s++;
-  if (/[A-Z]/.test(pw))         s++;
-  if (/[0-9]/.test(pw))         s++;
-  if (/[^A-Za-z0-9]/.test(pw))  s++;
+  if (pw.length >= 8) s++;
+  if (/[A-Z]/.test(pw)) s++;
+  if (/[0-9]/.test(pw)) s++;
+  if (/[^A-Za-z0-9]/.test(pw)) s++;
   return s;
 }
 const PW_LEVELS = ['', 'weak', 'fair', 'good', 'strong'];
@@ -48,23 +49,36 @@ const PW_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
    SETTINGS PAGE
    ============================================================ */
 export default function SettingsPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('account');
 
   /* ── Account form state ── */
   const [account, setAccount] = useState({
-    name: 'Aarav Rao',
-    email: 'aarav.rao@university.edu',
-    phone: '+91 98765 43210',
-    location: 'Mumbai, India',
+    name: '',
+    email: '',
+    phone: '',
+    location: '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setAccount({
+        name: user.name || '',
+        email: user.email || '',
+        phone: '',
+        location: '',
+      });
+    }
+  }, [user]);
+
   const [accountSaved, setAccountSaved] = useState(false);
 
   /* ── Notification toggles ── */
   const [notifs, setNotifs] = useState({
-    emailDigest:    true,
+    emailDigest: true,
     studyReminders: true,
-    weeklyReport:   false,
-    newFeatures:    true,
+    weeklyReport: false,
+    newFeatures: true,
     questionResults: true,
   });
 
@@ -79,9 +93,9 @@ export default function SettingsPage() {
 
   /* ── Privacy toggles ── */
   const [privacy, setPrivacy] = useState({
-    publicProfile:  false,
-    activityFeed:   false,
-    analytics:      true,
+    publicProfile: false,
+    activityFeed: false,
+    analytics: true,
   });
 
   /* ── Save handlers ── */
@@ -93,9 +107,9 @@ export default function SettingsPage() {
 
   function savePassword(e) {
     e.preventDefault();
-    if (!pwForm.current)               { setPwError('Current password is required.'); return; }
-    if (!pwForm.next)                  { setPwError('New password is required.'); return; }
-    if (pwForm.next.length < 8)        { setPwError('New password must be at least 8 characters.'); return; }
+    if (!pwForm.current) { setPwError('Current password is required.'); return; }
+    if (!pwForm.next) { setPwError('New password is required.'); return; }
+    if (pwForm.next.length < 8) { setPwError('New password must be at least 8 characters.'); return; }
     if (pwForm.next !== pwForm.confirm) { setPwError('Passwords do not match.'); return; }
     setPwError('');
     setPwSaved(true);
@@ -146,10 +160,10 @@ export default function SettingsPage() {
   /* ── ACCOUNT TAB ── */
   function AccountTab() {
     const FIELDS = [
-      { key: 'name',     label: 'Full Name',      type: 'text',  icon: User,  placeholder: 'Your full name' },
-      { key: 'email',    label: 'Email Address',   type: 'email', icon: Mail,  placeholder: 'you@example.com' },
-      { key: 'phone',    label: 'Phone Number',    type: 'tel',   icon: Phone, placeholder: '+1 (555) 000-0000' },
-      { key: 'location', label: 'Location',        type: 'text',  icon: MapPin,placeholder: 'City, Country' },
+      { key: 'name', label: 'Full Name', type: 'text', icon: User, placeholder: 'Your full name' },
+      { key: 'email', label: 'Email Address', type: 'email', icon: Mail, placeholder: 'you@example.com' },
+      { key: 'phone', label: 'Phone Number', type: 'tel', icon: Phone, placeholder: '+1 (555) 000-0000' },
+      { key: 'location', label: 'Location', type: 'text', icon: MapPin, placeholder: 'City, Country' },
     ];
 
     return (
@@ -183,7 +197,9 @@ export default function SettingsPage() {
         <div style={{ marginBottom: 24, padding: '18px 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Profile Picture</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div className="avatar" style={{ width: 52, height: 52, fontSize: 18, borderRadius: 14, flexShrink: 0 }}>AR</div>
+            <div className="avatar" style={{ width: 52, height: 52, fontSize: 18, borderRadius: 14, flexShrink: 0 }}>
+              {user?.name?.substring(0, 2).toUpperCase() || 'U'}
+            </div>
             <div>
               <button type="button" className="btn btn-secondary" style={{ fontSize: 13, padding: '8px 16px' }}>
                 Change photo
@@ -193,7 +209,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <button id="save-account" type="submit" className="btn btn-primary">
+        <button id="save-account" type="button" className="btn btn-secondary" disabled title="Profile editing is not available yet.">
           <Save size={14} strokeWidth={2} />
           Save Account
         </button>
@@ -204,10 +220,10 @@ export default function SettingsPage() {
   /* ── NOTIFICATIONS TAB ── */
   function NotificationsTab() {
     const ROWS = [
-      { key: 'emailDigest',     label: 'Email digest',          desc: 'Receive a daily summary of your study activity.' },
-      { key: 'studyReminders',  label: 'Study reminders',        desc: 'Get reminded to study if you haven\'t opened the app today.' },
-      { key: 'weeklyReport',    label: 'Weekly progress report', desc: 'A weekly email with your learning stats and streak.' },
-      { key: 'newFeatures',     label: 'New features & updates', desc: 'Be the first to know about new AI features.' },
+      { key: 'emailDigest', label: 'Email digest', desc: 'Receive a daily summary of your study activity.' },
+      { key: 'studyReminders', label: 'Study reminders', desc: 'Get reminded to study if you haven\'t opened the app today.' },
+      { key: 'weeklyReport', label: 'Weekly progress report', desc: 'A weekly email with your learning stats and streak.' },
+      { key: 'newFeatures', label: 'New features & updates', desc: 'Be the first to know about new AI features.' },
       { key: 'questionResults', label: 'Question session results', desc: 'Get notified when your question score is ready.' },
     ];
 
@@ -310,9 +326,9 @@ export default function SettingsPage() {
     const label = PW_LABELS[strength] || '';
 
     const PW_FIELDS = [
-      { key: 'current', label: 'Current password',  placeholder: 'Enter your current password', autoComplete: 'current-password' },
-      { key: 'next',    label: 'New password',       placeholder: 'Min. 8 characters',           autoComplete: 'new-password' },
-      { key: 'confirm', label: 'Confirm new password', placeholder: 'Repeat new password',       autoComplete: 'new-password' },
+      { key: 'current', label: 'Current password', placeholder: 'Enter your current password', autoComplete: 'current-password' },
+      { key: 'next', label: 'New password', placeholder: 'Min. 8 characters', autoComplete: 'new-password' },
+      { key: 'confirm', label: 'Confirm new password', placeholder: 'Repeat new password', autoComplete: 'new-password' },
     ];
 
     return (
@@ -375,9 +391,9 @@ export default function SettingsPage() {
   /* ── PRIVACY TAB ── */
   function PrivacyTab() {
     const ROWS = [
-      { key: 'publicProfile', label: 'Public profile',       desc: 'Allow others to view your profile and study stats.' },
-      { key: 'activityFeed',  label: 'Activity feed',         desc: 'Show your recent study sessions to followers.' },
-      { key: 'analytics',     label: 'Usage analytics',       desc: 'Help improve StudySmart AI by sharing anonymous usage data.' },
+      { key: 'publicProfile', label: 'Public profile', desc: 'Allow others to view your profile and study stats.' },
+      { key: 'activityFeed', label: 'Activity feed', desc: 'Show your recent study sessions to followers.' },
+      { key: 'analytics', label: 'Usage analytics', desc: 'Help improve StudySmart AI by sharing anonymous usage data.' },
     ];
 
     return (
@@ -409,11 +425,11 @@ export default function SettingsPage() {
 
   /* ── Tab content map ── */
   const TAB_CONTENT = {
-    account:       <AccountTab />,
+    account: <AccountTab />,
     notifications: <NotificationsTab />,
-    appearance:    <AppearanceTab />,
-    password:      <PasswordTab />,
-    privacy:       <PrivacyTab />,
+    appearance: <AppearanceTab />,
+    password: <PasswordTab />,
+    privacy: <PrivacyTab />,
   };
 
   /* ── Render ── */

@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { apiFetch } from '../api/client';
 import {
   FileText, TrendingUp, HelpCircle, BookOpen,
   MapPin, Mail, Phone, GraduationCap, Target,
@@ -12,33 +14,33 @@ import '../styles/auth.css';
 const PROFILE_STATS = [
   {
     title: 'Documents Uploaded',
-    value: '42',
-    trend: '+18%', trendDir: 'up',
+    value: '—',
+    trend: null, trendDir: null,
     icon: FileText,
     iconBg: 'rgba(79,70,229,0.09)', iconColor: '#4F46E5',
     progress: null, progressColor: null,
   },
   {
     title: 'Learning Progress',
-    value: '78%',
-    trend: '+6%', trendDir: 'up',
+    value: '—',
+    trend: null, trendDir: null,
     icon: TrendingUp,
     iconBg: 'rgba(34,197,94,0.09)', iconColor: '#22C55E',
-    progress: 78,
+    progress: null,
     progressColor: 'linear-gradient(90deg,var(--primary),var(--accent))',
   },
   {
     title: 'Questions Generated',
-    value: '1,204',
-    trend: '+32%', trendDir: 'up',
+    value: '—',
+    trend: null, trendDir: null,
     icon: HelpCircle,
     iconBg: 'rgba(6,182,212,0.09)', iconColor: '#06B6D4',
     progress: null, progressColor: null,
   },
   {
     title: 'Study Sessions',
-    value: '53',
-    trend: '+12%', trendDir: 'up',
+    value: '—',
+    trend: null, trendDir: null,
     icon: BookOpen,
     iconBg: 'rgba(245,158,11,0.09)', iconColor: '#F59E0B',
     progress: null, progressColor: null,
@@ -46,18 +48,13 @@ const PROFILE_STATS = [
 ];
 
 /* ── Recent activity (mirrors doc-row pattern from dashboard) ── */
-const RECENT_ACTIVITY = [
-  { type: 'pdf',  name: 'Operating Systems — Unit 4 Notes.pdf', meta: 'Study session · 2 hours ago',  tag: '28 flashcards', tagClass: 'tag-questions' },
-  { type: 'docx', name: 'Machine Learning — Chapter 7.docx',    meta: 'Question mode · Yesterday',   tag: '40 questions',  tagClass: 'tag-questions' },
-  { type: 'ppt',  name: 'Product Analyst — Job Description.pptx',meta:'Summary generated · 2 days ago',tag: 'Summary ready',tagClass: 'tag-summary' },
-  { type: 'pdf',  name: 'DBMS Interview Prep — Full Guide.pdf',  meta: 'Uploaded · 4 days ago',       tag: 'Summary ready', tagClass: 'tag-summary' },
-];
+const RECENT_ACTIVITY = [];
 
 /* doc-icon SVG per file type — same colours as dashboard.css doc-icon.* */
 const DOC_ICONS = {
   pdf: { bg: 'rgba(79,70,229,0.08)', border: 'rgba(79,70,229,0.15)', stroke: '#4F46E5' },
-  ppt: { bg: 'rgba(6,182,212,0.08)',  border: 'rgba(6,182,212,0.15)',  stroke: '#06B6D4' },
-  docx:{ bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.15)', stroke: '#22C55E' },
+  ppt: { bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.15)', stroke: '#06B6D4' },
+  docx: { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.15)', stroke: '#22C55E' },
 };
 
 function DocTypeIcon({ type }) {
@@ -71,66 +68,74 @@ function DocTypeIcon({ type }) {
 
 /* ── Form field arrays for view / edit modes ── */
 const PERSONAL_FIELDS = [
-  { key: 'name',     label: 'Full Name',     type: 'text',  icon: FileText,    placeholder: 'Your full name' },
-  { key: 'email',    label: 'Email',         type: 'email', icon: Mail,        placeholder: 'you@example.com' },
-  { key: 'phone',    label: 'Phone',         type: 'tel',   icon: Phone,       placeholder: '+1 (555) 000-0000' },
-  { key: 'location', label: 'Location',      type: 'text',  icon: MapPin,      placeholder: 'City, Country' },
+  { key: 'name', label: 'Full Name', type: 'text', icon: FileText, placeholder: 'Your full name' },
+  { key: 'email', label: 'Email', type: 'email', icon: Mail, placeholder: 'you@example.com' },
+  { key: 'phone', label: 'Phone', type: 'tel', icon: Phone, placeholder: '+1 (555) 000-0000' },
+  { key: 'location', label: 'Location', type: 'text', icon: MapPin, placeholder: 'City, Country' },
 ];
 
 const PERSONAL_VIEW = [
-  { key: 'email',    label: 'Email',    icon: Mail },
-  { key: 'phone',    label: 'Phone',    icon: Phone },
+  { key: 'email', label: 'Email', icon: Mail },
+  { key: 'phone', label: 'Phone', icon: Phone },
   { key: 'location', label: 'Location', icon: MapPin },
 ];
 
 const ACADEMIC_FIELDS = [
   { key: 'university', label: 'University / Institution', type: 'text', icon: GraduationCap, placeholder: 'University name' },
-  { key: 'field',      label: 'Field of Study',           type: 'text', icon: BookOpen,      placeholder: 'e.g. Computer Science' },
-  { key: 'level',      label: 'Current Level',            type: 'text', icon: Target,        placeholder: 'e.g. Undergraduate — 3rd Year' },
-  { key: 'goal',       label: 'Study Goal',               type: 'text', icon: Target,        placeholder: 'e.g. Exam Preparation' },
+  { key: 'field', label: 'Field of Study', type: 'text', icon: BookOpen, placeholder: 'e.g. Computer Science' },
+  { key: 'level', label: 'Current Level', type: 'text', icon: Target, placeholder: 'e.g. Undergraduate — 3rd Year' },
+  { key: 'goal', label: 'Study Goal', type: 'text', icon: Target, placeholder: 'e.g. Exam Preparation' },
 ];
 
 const ACADEMIC_VIEW = [
   { key: 'university', label: 'University', icon: GraduationCap },
-  { key: 'field',      label: 'Field',      icon: BookOpen },
-  { key: 'level',      label: 'Level',      icon: Target },
-  { key: 'goal',       label: 'Goal',       icon: Target },
+  { key: 'field', label: 'Field', icon: BookOpen },
+  { key: 'level', label: 'Level', icon: Target },
+  { key: 'goal', label: 'Goal', icon: Target },
 ];
 
 /* ============================================================
    PROFILE PAGE
    ============================================================ */
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false);
+  const { user } = useAuth();
+  const [docCount, setDocCount] = useState(0);
 
   const INITIAL = {
-    name: 'Aarav Rao',
-    email: 'aarav.rao@university.edu',
-    phone: '+91 98765 43210',
-    location: 'Mumbai, India',
-    university: 'University of Mumbai',
-    field: 'Computer Science & Engineering',
-    level: 'Undergraduate — 3rd Year',
-    goal: 'Exam Preparation & Interview Prep',
-    bio: 'CS student focused on machine learning and software development. Using StudySmart AI to ace semester exams and prepare for tech interviews.',
+    name: user?.name || 'User',
+    email: user?.email || '',
+    phone: '',
+    location: '',
+    university: '',
+    field: '',
+    level: '',
+    goal: '',
+    bio: '',
   };
 
-  const [form, setForm]   = useState(INITIAL);
-  const [saved, setSaved] = useState(INITIAL);
+  const saved = INITIAL;
 
-  function handleSave() {
-    setSaved({ ...form });
-    setIsEditing(false);
-  }
+  useEffect(() => {
+    async function fetchCount() {
+      try {
+        const res = await apiFetch('/api/documents');
+        if (res.ok) {
+          const data = await res.json();
+          setDocCount(data.documents ? data.documents.length : 0);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    if (user) fetchCount();
+  }, [user]);
 
-  function handleCancel() {
-    setForm({ ...saved });
-    setIsEditing(false);
-  }
+  const stats = PROFILE_STATS.map(s => 
+    s.title === 'Documents Uploaded' ? { ...s, value: docCount.toString() } : s
+  );
 
-  function field(key) {
-    return e => setForm(p => ({ ...p, [key]: e.target.value }));
-  }
+  // Editing disabled since no backend endpoint exists
+  const isEditing = false;
 
   /* ── Info row (view mode) ── */
   function InfoRow({ icon: Icon, label, value }) {
@@ -179,23 +184,9 @@ export default function ProfilePage() {
           <h1>My Profile</h1>
           <p>Manage your personal information and academic details.</p>
         </div>
-        {!isEditing ? (
-          <button id="edit-profile-btn" className="btn btn-primary" onClick={() => setIsEditing(true)}>
-            <Edit2 size={14} strokeWidth={2} />
-            Edit Profile
-          </button>
-        ) : (
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button id="cancel-edit-btn" className="btn btn-secondary" onClick={handleCancel}>
-              <X size={14} strokeWidth={2} />
-              Cancel
-            </button>
-            <button id="save-profile-btn" className="btn btn-primary" onClick={handleSave}>
-              <Check size={14} strokeWidth={2} />
-              Save Changes
-            </button>
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Editing currently unavailable</span>
+        </div>
       </div>
 
       {/* Profile header card */}
@@ -223,11 +214,11 @@ export default function ProfilePage() {
               </span>
             </div>
             <p style={{ fontSize: 13.5, color: 'var(--text-muted)', margin: '5px 0 0' }}>
-              {saved.university} · {saved.field}
+              StudySmart User
             </p>
             <p style={{ fontSize: 12.5, color: 'var(--text-muted)', margin: '3px 0 0', display: 'flex', alignItems: 'center', gap: 5 }}>
               <Calendar size={12} strokeWidth={1.8} />
-              Member since March 2025
+              Member
             </p>
           </div>
         </div>
@@ -241,7 +232,7 @@ export default function ProfilePage() {
 
       {/* Stat grid — reuse StatCard */}
       <div className="stat-grid" style={{ marginBottom: 20 }}>
-        {PROFILE_STATS.map((stat, i) => <StatCard key={i} {...stat} />)}
+        {stats.map((stat, i) => <StatCard key={i} {...stat} />)}
       </div>
 
       {/* 2-column layout */}
@@ -311,16 +302,22 @@ export default function ProfilePage() {
               <span className="link">View all</span>
             </div>
 
-            {RECENT_ACTIVITY.map((item, i) => (
-              <div key={i} className="doc-row">
-                <DocTypeIcon type={item.type} />
-                <div className="doc-info">
-                  <div className="doc-name">{item.name}</div>
-                  <div className="doc-meta">{item.meta}</div>
-                </div>
-                <span className={`doc-tag ${item.tagClass}`}>{item.tag}</span>
+            {RECENT_ACTIVITY.length === 0 ? (
+              <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: 13.5 }}>Activity history will be available soon.</p>
               </div>
-            ))}
+            ) : (
+              RECENT_ACTIVITY.map((item, i) => (
+                <div key={i} className="doc-row">
+                  <DocTypeIcon type={item.type} />
+                  <div className="doc-info">
+                    <div className="doc-name">{item.name}</div>
+                    <div className="doc-meta">{item.meta}</div>
+                  </div>
+                  <span className={`doc-tag ${item.tagClass}`}>{item.tag}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

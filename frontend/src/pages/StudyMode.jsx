@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Plus, RefreshCw, Download, UploadCloud } from 'lucide-react';
 import Button from '../components/common/Button';
-import DocumentPreview from '../components/sections/study/DocumentPreview';
-import StudyWorkspace from '../components/sections/study/StudyWorkspace';
-import { documentMeta } from '../data/studyData';
+import '../styles/study.css';
 import '../styles/study.css';
 
 export default function StudyMode() {
@@ -19,12 +17,9 @@ export default function StudyMode() {
             <ChevronLeft size={16} stroke="#374151" strokeWidth={1.8} />
           </Link>
           <div className="doc-title-wrap">
-            <div className="doc-title">{documentMeta.title}</div>
+            <div className="doc-title">Study Mode</div>
             <div className="doc-meta-sm">
-              <span className="status-pill">
-                <span className="dot"></span>{documentMeta.status}
-              </span>
-              <span>· {documentMeta.pages} pages · {documentMeta.size}</span>
+              <span>Coming Soon</span>
             </div>
           </div>
         </div>
@@ -33,11 +28,11 @@ export default function StudyMode() {
             <Plus size={15} stroke="#6B7280" strokeWidth={1.9} />
             <span className="lbltext">New Upload</span>
           </Button>
-          <Button variant="secondary">
+          <Button variant="secondary" disabled>
             <RefreshCw size={15} stroke="#111827" strokeWidth={1.9} />
             <span className="lbltext">Generate Again</span>
           </Button>
-          <Button variant="primary">
+          <Button variant="primary" disabled>
             <Download size={15} stroke="#fff" strokeWidth={1.9} />
             <span className="lbltext">Export</span>
           </Button>
@@ -53,7 +48,7 @@ export default function StudyMode() {
             <p>We'll turn it into a summary, smart notes, key points, flashcards, and a learning assistant.</p>
             <div 
               className="dropzone" 
-              onClick={() => setShowUploadScreen(false)}
+              onClick={() => alert("Study Mode AI processing will be available in Step 5.")}
             >
               <div className="dropzone-icon">
                 <UploadCloud size={30} stroke="#4F46E5" strokeWidth={1.8} />
@@ -71,9 +66,15 @@ export default function StudyMode() {
           </div>
         </div>
       ) : (
-        <div className="workspace">
-          <DocumentPreview />
-          <StudyWorkspace />
+        <div className="workspace" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>🧠</div>
+            <h3 style={{ color: 'var(--text)', marginBottom: 8 }}>Study Mode is coming soon</h3>
+            <p style={{ fontSize: 14 }}>AI-powered summaries, flashcards, and smart notes are part of the next phase.</p>
+            <Button variant="primary" style={{ marginTop: 20 }} onClick={() => setShowUploadScreen(true)}>
+              Notify me
+            </Button>
+          </div>
         </div>
       )}
     </div>

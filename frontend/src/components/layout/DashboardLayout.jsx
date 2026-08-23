@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import Sidebar from './Sidebar';
 import TopNavbar from './TopNavbar';
 import SearchBar from '../common/SearchBar';
@@ -8,6 +9,15 @@ import '../../styles/dashboard.css';
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div style={{ padding: 40, textAlign: 'center' }}>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <div className="app">

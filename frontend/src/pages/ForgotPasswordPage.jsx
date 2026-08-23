@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/forms/AuthLayout';
 import '../styles/landing.css';
 import '../styles/auth.css';
@@ -25,6 +25,7 @@ export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');
+  const navigate                  = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -33,7 +34,12 @@ export default function ForgotPasswordPage() {
     setError('');
     setLoading(true);
     try {
-      await new Promise(r => setTimeout(r, 1000)); // TODO: replace with real API call
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      // We always show success, regardless of real status for security
       setSubmitted(true);
     } catch {
       setError('Something went wrong. Please try again.');
@@ -64,18 +70,16 @@ export default function ForgotPasswordPage() {
             Check your inbox
           </h1>
           <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.65, margin: '0 0 32px' }}>
-            We sent a password reset link to{' '}
-            <strong style={{ color: 'var(--text)', fontWeight: 700 }}>{email}</strong>.
-            {' '}The link expires in 15 minutes.
+            If an account exists for this email, a password reset code has been sent.
           </p>
 
-          <Link
-            to="/login"
+          <button
+            onClick={() => navigate('/reset-password', { state: { email } })}
             className="auth-submit"
-            style={{ display: 'flex', textDecoration: 'none' }}
+            style={{ display: 'flex', textDecoration: 'none', justifyContent: 'center' }}
           >
-            Back to sign in
-          </Link>
+            Enter Reset Code
+          </button>
 
           <p style={{ marginTop: 20, fontSize: 13.5, color: 'var(--text-muted)' }}>
             Didn't receive it?{' '}

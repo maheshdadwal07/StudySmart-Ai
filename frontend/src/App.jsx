@@ -4,7 +4,9 @@ import Landing from './pages/Landing'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import PricingPage from './pages/PricingPage'
+import VerifyEmailPage from './pages/VerifyEmailPage'
 import DashboardLayout from './components/layout/DashboardLayout'
 import Dashboard from './pages/Dashboard'
 import ProfilePage from './pages/ProfilePage'
@@ -21,7 +23,9 @@ function App() {
       <Route path="/"               element={<Landing />} />
       <Route path="/login"          element={<LoginPage />} />
       <Route path="/signup"         element={<SignUpPage />} />
+      <Route path="/verify-email"   element={<VerifyEmailPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/pricing"        element={<PricingPage />} />
 
       {/* Dashboard routes (shared layout: sidebar + topnav) */}

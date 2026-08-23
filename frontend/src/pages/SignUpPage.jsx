@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import AuthLayout from '../components/forms/AuthLayout';
 import '../styles/landing.css';
 import '../styles/auth.css';
@@ -46,10 +47,10 @@ function IconEye({ open }) {
 function IconGoogle() {
   return (
     <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
-      <path d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z" fill="#FFC107"/>
-      <path d="M6.3 14.7l6.6 4.8C14.7 16.1 19 13 24 13c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" fill="#FF3D00"/>
-      <path d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.5 39.6 16.2 44 24 44z" fill="#4CAF50"/>
-      <path d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C41.1 36.2 44 30.5 44 24c0-1.2-.1-2.3-.4-3.5z" fill="#1976D2"/>
+      <path d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z" fill="#FFC107" />
+      <path d="M6.3 14.7l6.6 4.8C14.7 16.1 19 13 24 13c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" fill="#FF3D00" />
+      <path d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.5 39.6 16.2 44 24 44z" fill="#4CAF50" />
+      <path d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.3 4.1-4.2 5.4l6.2 5.2C41.1 36.2 44 30.5 44 24c0-1.2-.1-2.3-.4-3.5z" fill="#1976D2" />
     </svg>
   );
 }
@@ -62,7 +63,7 @@ function isValidEmail(val) {
 function getPasswordStrength(pw) {
   if (!pw) return 0;
   let score = 0;
-  if (pw.length >= 8)  score++;
+  if (pw.length >= 8) score++;
   if (/[A-Z]/.test(pw)) score++;
   if (/[0-9]/.test(pw)) score++;
   if (/[^A-Za-z0-9]/.test(pw)) score++;
@@ -74,9 +75,9 @@ const PW_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
 
 /* ── Password strength bar component (inline, no extra file) ── */
 function PasswordStrength({ password }) {
-  const score  = getPasswordStrength(password);
-  const level  = PW_LEVELS[score] || '';
-  const label  = PW_LABELS[score] || '';
+  const score = getPasswordStrength(password);
+  const level = PW_LEVELS[score] || '';
+  const label = PW_LABELS[score] || '';
 
   if (!password) return null;
 
@@ -101,28 +102,29 @@ function PasswordStrength({ password }) {
 export default function SignUpPage() {
   const navigate = useNavigate();
 
-  const [name, setName]               = useState('');
-  const [email, setEmail]             = useState('');
-  const [password, setPassword]       = useState('');
-  const [confirmPw, setConfirmPw]     = useState('');
-  const [showPw, setShowPw]           = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPw, setConfirmPw] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [agreed, setAgreed]           = useState(false);
-  const [loading, setLoading]         = useState(false);
-  const [errors, setErrors]           = useState({});
-  const [apiError, setApiError]       = useState('');
+  const [agreed, setAgreed] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
+  const { register } = useAuth();
 
   /* ── Validation ── */
   function validate() {
     const errs = {};
-    if (!name.trim())              errs.name     = 'Full name is required.';
-    if (!email.trim())             errs.email    = 'Email is required.';
-    else if (!isValidEmail(email)) errs.email    = 'Enter a valid email address.';
-    if (!password)                 errs.password = 'Password is required.';
-    else if (password.length < 8)  errs.password = 'Password must be at least 8 characters.';
-    if (!confirmPw)                errs.confirmPw = 'Please confirm your password.';
+    if (!name.trim()) errs.name = 'Full name is required.';
+    if (!email.trim()) errs.email = 'Email is required.';
+    else if (!isValidEmail(email)) errs.email = 'Enter a valid email address.';
+    if (!password) errs.password = 'Password is required.';
+    else if (password.length < 8) errs.password = 'Password must be at least 8 characters.';
+    if (!confirmPw) errs.confirmPw = 'Please confirm your password.';
     else if (confirmPw !== password) errs.confirmPw = 'Passwords do not match.';
-    if (!agreed)                   errs.agreed   = 'You must agree to the terms to continue.';
+    if (!agreed) errs.agreed = 'You must agree to the terms to continue.';
     return errs;
   }
 
@@ -136,11 +138,10 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      // TODO: replace with real API call
-      await new Promise((r) => setTimeout(r, 1400));
-      navigate('/dashboard');
-    } catch {
-      setApiError('Something went wrong. Please try again.');
+      await register(name, email, password);
+      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+    } catch (err) {
+      setApiError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

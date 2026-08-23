@@ -2,12 +2,7 @@ import React from 'react';
 import { History, Search, Filter, MoreHorizontal } from 'lucide-react';
 import '../styles/dashboard.css';
 
-const HISTORY_DATA = [
-  { id: 1, title: 'Operating Systems — Unit 4 Notes', type: 'PDF', date: '2 hours ago', action: 'Question generation' },
-  { id: 2, title: 'Machine Learning — Chapter 7', type: 'DOCX', date: 'Yesterday', action: 'Summary generated' },
-  { id: 3, title: 'Database Management Systems', type: 'PPTX', date: '3 days ago', action: 'Flashcards created' },
-  { id: 4, title: 'Data Structures & Algorithms', type: 'PDF', date: 'Last week', action: 'Study session' },
-];
+const HISTORY_DATA = [];
 
 export default function HistoryPage() {
   return (
@@ -43,19 +38,27 @@ export default function HistoryPage() {
               </tr>
             </thead>
             <tbody>
-              {HISTORY_DATA.map((item) => (
-                <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td style={{ padding: '16px', fontWeight: 500, color: 'var(--text)' }}>{item.title}</td>
-                  <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.type}</td>
-                  <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.action}</td>
-                  <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.date}</td>
-                  <td style={{ padding: '16px' }}>
-                    <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                      <MoreHorizontal size={18} />
-                    </button>
+              {HISTORY_DATA.length === 0 ? (
+                <tr>
+                  <td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                    Study history will be available when you complete your first study session.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                HISTORY_DATA.map((item) => (
+                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '16px', fontWeight: 500, color: 'var(--text)' }}>{item.title}</td>
+                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.type}</td>
+                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.action}</td>
+                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.date}</td>
+                    <td style={{ padding: '16px' }}>
+                      <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                        <MoreHorizontal size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
