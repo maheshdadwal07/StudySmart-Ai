@@ -351,3 +351,99 @@ async def process_document(
     )
     
     return {"detail": "Processing started", "status": "Processing"}
+
+from pydantic import BaseModel, Field
+class DocumentRenameRequest(BaseModel):
+    filename: str = Field(..., description="The new filename")
+
+@router.patch("/{document_id}", response_model=DocumentResponse)
+async def rename_document(
+    document_id: str,
+    request: DocumentRenameRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        obj_id = ObjectId(document_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    db = get_database()
+    doc = await db.documents.find_one({"_id": obj_id})
+    
+    if not doc or doc.get("user_id") != current_user["_id"]:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    old_filename = doc.get("filename", "")
+    new_filename = request.filename.strip()
+    
+    if not new_filename:
+        raise HTTPException(status_code=400, detail="Filename cannot be empty")
+        
+    # Preserve extension
+    ext = ""
+    if "." in old_filename:
+        ext = old_filename[old_filename.rindex("."):].lower()
+        
+    if not new_filename.lower().endswith(ext):
+        new_filename += ext
+        
+    safe_filename = sanitize_filename(new_filename)
+    if not safe_filename or safe_filename == ext:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+        
+    now = datetime.now(timezone.utc)
+    await db.documents.update_one(
+        {"_id": obj_id},
+        {"$set": {"filename": safe_filename, "updated_at": now}}
+    )
+    
+    updated_doc = await db.documents.find_one({"_id": obj_id})
+    updated_doc["_id"] = str(updated_doc["_id"])
+    updated_doc["user_id"] = str(updated_doc["user_id"])
+    return updated_doc
+
+@router.get("/{document_id}/preview")
+async def preview_document(
+    document_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    try:
+        obj_id = ObjectId(document_id)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    db = get_database()
+    doc = await db.documents.find_one({"_id": obj_id})
+    
+    if not doc or doc.get("user_id") != current_user["_id"]:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    storage = doc.get("storage", {})
+    public_id = storage.get("public_id")
+    resource_type = storage.get("resource_type", "raw")
+    
+    if not public_id:
+        raise HTTPException(status_code=404, detail="Document asset not found")
+        
+    secure_url = storage.get("secure_url", "")
+    is_legacy_public = False
+    if secure_url and "raw/upload/" in secure_url:
+        is_legacy_public = True
+        
+    if is_legacy_public:
+        return {"url": secure_url}
+        
+    try:
+        signed_url, _ = cloudinary.utils.cloudinary_url(
+            public_id,
+            resource_type=resource_type,
+            type="authenticated",
+            sign_url=True,
+            expires_at=int(datetime.now(timezone.utc).timestamp()) + 3600 # 1 hour
+        )
+        return {"url": signed_url}
+    except Exception as e:
+        import logging
+        logging.error(f"Failed to generate signed URL for document {document_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate secure preview URL")
+

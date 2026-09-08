@@ -1,10 +1,90 @@
-import React from 'react';
-import { History, Search, Filter, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Loader, AlertCircle, FileText, Play, HelpCircle, ChevronRight, ChevronLeft } from 'lucide-react';
+import { apiFetch } from '../api/client';
+import Button from '../components/common/Button';
 import '../styles/dashboard.css';
 
-const HISTORY_DATA = [];
-
 export default function HistoryPage() {
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const [filter, setFilter] = useState('all'); // all, study, quiz
+  const [search, setSearch] = useState('');
+  
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const limit = 10;
+  
+  const searchTimeoutRef = useRef(null);
+  const navigate = useNavigate();
+
+  const fetchHistory = async (currentPage, currentFilter, currentSearch) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: limit.toString(),
+        type: currentFilter
+      });
+      
+      if (currentSearch.trim()) {
+        queryParams.append('search', currentSearch.trim());
+      }
+      
+      const res = await apiFetch(`/api/history?${queryParams.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setItems(data.items || []);
+        setHasMore(data.has_more || false);
+      } else {
+        throw new Error('Failed to load history');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Unable to load your history.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory(page, filter, search);
+    // eslint-disable-next-line
+  }, [page, filter]);
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearch(val);
+    
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      setPage(1); // Reset page on new search
+      fetchHistory(1, filter, val);
+    }, 400);
+  };
+
+  const handleFilterClick = (newFilter) => {
+    if (filter !== newFilter) {
+      setFilter(newFilter);
+      setPage(1);
+    }
+  };
+
+  const handleOpenItem = (item) => {
+    if (item.type === 'Study') {
+      navigate(`/study-mode?sessionId=${item.session_id}`);
+    } else if (item.type === 'Quiz') {
+      navigate(`/question-mode?sessionId=${item.session_id}`);
+    }
+  };
+
   return (
     <>
       <div className="page-head">
@@ -15,53 +95,171 @@ export default function HistoryPage() {
       </div>
 
       <div className="panel">
-        <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-          <div className="input-wrap" style={{ flex: 1, maxWidth: 300 }}>
-            <span className="input-icon"><Search size={16} /></span>
-            <input type="text" className="auth-input" placeholder="Search history..." style={{ paddingLeft: 40 }} />
+        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+          
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button 
+              onClick={() => handleFilterClick('all')}
+              style={{ 
+                padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', border: 'none',
+                backgroundColor: filter === 'all' ? '#111827' : '#f3f4f6', 
+                color: filter === 'all' ? '#fff' : '#4b5563',
+                transition: 'all 0.2s'
+              }}
+            >
+              All
+            </button>
+            <button 
+              onClick={() => handleFilterClick('study')}
+              style={{ 
+                padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', border: 'none',
+                backgroundColor: filter === 'study' ? '#111827' : '#f3f4f6', 
+                color: filter === 'study' ? '#fff' : '#4b5563',
+                transition: 'all 0.2s'
+              }}
+            >
+              Study
+            </button>
+            <button 
+              onClick={() => handleFilterClick('quiz')}
+              style={{ 
+                padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', border: 'none',
+                backgroundColor: filter === 'quiz' ? '#111827' : '#f3f4f6', 
+                color: filter === 'quiz' ? '#fff' : '#4b5563',
+                transition: 'all 0.2s'
+              }}
+            >
+              Quiz
+            </button>
           </div>
-          <button className="btn btn-secondary">
-            <Filter size={16} />
-            Filter
-          </button>
+
+          <div className="input-wrap" style={{ width: '100%', maxWidth: '300px', margin: 0 }}>
+            <span className="input-icon"><Search size={16} /></span>
+            <input 
+              type="text" 
+              className="auth-input" 
+              placeholder="Search history..." 
+              value={search}
+              onChange={handleSearchChange}
+              style={{ paddingLeft: '40px' }} 
+            />
+          </div>
         </div>
 
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Document</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Type</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Action</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Date</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, width: 50 }}></th>
-              </tr>
-            </thead>
-            <tbody>
-              {HISTORY_DATA.length === 0 ? (
-                <tr>
-                  <td colSpan="5" style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                    Study history will be available when you complete your first study session.
-                  </td>
-                </tr>
-              ) : (
-                HISTORY_DATA.map((item) => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '16px', fontWeight: 500, color: 'var(--text)' }}>{item.title}</td>
-                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.type}</td>
-                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.action}</td>
-                    <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{item.date}</td>
-                    <td style={{ padding: '16px' }}>
-                      <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                        <MoreHorizontal size={18} />
-                      </button>
-                    </td>
+        {error ? (
+          <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <AlertCircle size={40} color="#ef4444" style={{ margin: '0 auto 16px' }} />
+            <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '8px' }}>Error</h3>
+            <p style={{ color: '#6b7280', marginBottom: '24px' }}>{error}</p>
+            <Button onClick={() => fetchHistory(page, filter, search)}>Retry</Button>
+          </div>
+        ) : loading && items.length === 0 ? (
+          <div style={{ padding: '80px 20px', textAlign: 'center' }}>
+            <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+            <p style={{ color: '#6b7280' }}>Loading history...</p>
+          </div>
+        ) : items.length === 0 ? (
+          <div style={{ padding: '80px 20px', textAlign: 'center', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px dashed #e5e7eb' }}>
+            <FileText size={48} color="#9ca3af" style={{ margin: '0 auto 16px' }} />
+            <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '8px' }}>
+              {search ? 'No sessions match your search.' : filter === 'study' ? 'No study sessions found.' : filter === 'quiz' ? 'No quiz sessions found.' : 'No study or quiz sessions yet.'}
+            </h3>
+            <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+              {!search && filter !== 'all' ? `Start generating ${filter} sessions to see them here.` : 'Your generated materials will appear here.'}
+            </p>
+            {!search && (
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <Button variant={filter === 'quiz' ? 'secondary' : 'primary'} onClick={() => navigate('/uploads')}>Start Studying</Button>
+                <Button variant={filter === 'study' ? 'secondary' : 'primary'} onClick={() => navigate('/question-mode')}>Generate a Quiz</Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #f3f4f6', color: '#6b7280' }}>
+                    <th style={{ padding: '16px 20px', fontWeight: 600 }}>Session</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 600 }}>Type</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 600 }}>Date</th>
+                    <th style={{ padding: '16px 20px', fontWeight: 600, width: '100px', textAlign: 'right' }}>Action</th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody style={{ position: 'relative' }}>
+                  {loading && (
+                    <tr>
+                      <td colSpan="4" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.7)', position: 'absolute', width: '100%', height: '100%', zIndex: 10 }}>
+                        <Loader size={24} className="spinning" style={{ color: '#4f46e5', margin: '40px auto' }} />
+                      </td>
+                    </tr>
+                  )}
+                  {items.map((item) => (
+                    <tr key={item.session_id} style={{ borderBottom: '1px solid #f3f4f6', transition: 'background-color 0.15s' }} className="hover:bg-gray-50">
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{ fontWeight: 500, color: '#111827' }}>{item.document_name}</div>
+                        {item.type === 'Quiz' && item.metadata?.question_count && (
+                          <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>
+                            {item.metadata.question_count} Questions • {item.metadata.difficulty}
+                          </div>
+                        )}
+                        {item.status !== 'Completed' && (
+                          <div style={{ fontSize: '12px', color: item.status === 'Failed' ? '#ef4444' : '#f59e0b', marginTop: '4px', fontWeight: 500 }}>
+                            {item.status}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: '16px 20px' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, backgroundColor: item.type === 'Study' ? '#ecfdf5' : '#f5f3ff', color: item.type === 'Study' ? '#059669' : '#7c3aed' }}>
+                          {item.type === 'Study' ? <Play size={14} /> : <HelpCircle size={14} />}
+                          {item.type}
+                        </div>
+                      </td>
+                      <td style={{ padding: '16px 20px', color: '#6b7280' }}>
+                        {new Date(item.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                      </td>
+                      <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                        <Button 
+                          variant="secondary" 
+                          onClick={() => handleOpenItem(item)}
+                          style={{ padding: '6px 12px', fontSize: '13px' }}
+                          disabled={item.status !== 'Completed'}
+                        >
+                          Open <ChevronRight size={14} />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Pagination Controls */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+              <div style={{ fontSize: '13px', color: '#6b7280' }}>
+                Page {page}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setPage(p => Math.max(1, p - 1))} 
+                  disabled={page === 1 || loading}
+                  style={{ padding: '6px 12px' }}
+                >
+                  <ChevronLeft size={16} /> Previous
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => setPage(p => p + 1)} 
+                  disabled={!hasMore || loading}
+                  style={{ padding: '6px 12px' }}
+                >
+                  Next <ChevronRight size={16} />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -131,11 +131,8 @@ async def get_question_session(session_id: str, current_user: dict = Depends(get
     db = get_database()
     session = await db.question_sessions.find_one({"_id": session_id})
     
-    if not session:
+    if not session or session["user_id"] != (current_user.get("_id") or current_user.get("id")):
         raise HTTPException(status_code=404, detail="Quiz session not found.")
-        
-    if session["user_id"] != (current_user.get("_id") or current_user.get("id")):
-        raise HTTPException(status_code=403, detail="Not authorized to access this session.")
         
     status = session["status"]
     response = QuestionSessionResponse(session_id=session_id, status=status)

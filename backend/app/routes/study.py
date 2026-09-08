@@ -127,11 +127,8 @@ async def get_study_session(session_id: str, current_user: dict = Depends(get_cu
     db = get_database()
     session = await db.study_sessions.find_one({"_id": session_id})
     
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found.")
-        
-    if session["user_id"] != (current_user.get("_id") or current_user.get("id")):
-        raise HTTPException(status_code=403, detail="Not authorized to access this session.")
+    if not session or session["user_id"] != (current_user.get("_id") or current_user.get("id")):
+        raise HTTPException(status_code=404, detail="Study session not found.")
         
     status = session["status"]
     response = StudySessionResponse(session_id=session_id, status=status)

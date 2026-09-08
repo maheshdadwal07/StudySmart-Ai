@@ -51,9 +51,9 @@ export default function SearchBar({ placeholder, className = '' }) {
     if (result.type === 'document') {
       navigate('/uploads');
     } else if (result.type === 'study_material') {
-      navigate(`/study-mode?docId=${result.document_id}`);
+      navigate(`/study-mode?sessionId=${result.id}`);
     } else if (result.type === 'questions') {
-      navigate(`/question-mode?docId=${result.document_id}`);
+      navigate(`/question-mode?sessionId=${result.id}`);
     }
   };
 
