@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   const firstName = user?.name?.split(' ')[0] || 'User';
 
-  const fetchDocuments = async () => {
+  const fetchDashboardData = async () => {
     try {
       const res = await apiFetch('/api/documents');
       if (res.ok) {
@@ -29,7 +29,7 @@ export default function Dashboard() {
         const docs = data.items || [];
         setDocuments(docs);
         
-        // update stats
+        // update stats for documents and storage
         const totalSize = docs.reduce((acc, d) => acc + (d.file_size_bytes || 0), 0);
         const mb = (totalSize / (1024 * 1024)).toFixed(1);
         const sizeStr = mb > 0 ? `${mb} MB` : `${Math.round(totalSize / 1024)} KB`;
@@ -40,16 +40,26 @@ export default function Dashboard() {
           return s;
         }));
       }
+      
+      const statsRes = await apiFetch('/api/dashboard/stats');
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setStats(prevStats => prevStats.map(s => {
+          if (s.id === 'questions') return { ...s, value: statsData.questions_generated };
+          if (s.id === 'learning') return { ...s, value: statsData.learning_progress };
+          return s;
+        }));
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
   useEffect(() => {
-    fetchDocuments();
+    fetchDashboardData();
   }, []);
 
-  const { status, errorMessage, fileName, uploadFile } = useDocumentUpload(fetchDocuments);
+  const { status, errorMessage, fileName, uploadFile } = useDocumentUpload(fetchDashboardData);
 
   const handleUploadClick = () => {
     if (fileInputRef.current) {
