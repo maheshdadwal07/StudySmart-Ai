@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import Navbar from '../components/landing/Navbar';
 import Footer from '../components/landing/Footer';
 import Reveal from '../components/landing/Reveal';
@@ -108,9 +109,54 @@ function CellVal({ val }) {
    PRICING PAGE
    ============================================================ */
 export default function PricingPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    // Check if there's meaningful React Router / browser history to go back to
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      // Fallback: Dashboard if logged in, Landing if logged out
+      navigate(user ? '/dashboard' : '/');
+    }
+  };
+
+  const dynamicTiers = TIERS.map(tier => {
+    if (tier.id === 'current') {
+      return {
+        ...tier,
+        btnText: user ? 'Go to Dashboard' : 'Start Learning',
+        to: user ? '/dashboard' : '/signup'
+      };
+    }
+    return tier;
+  });
+
   return (
     <>
-      <Navbar />
+      {user ? (
+        <div style={{ padding: '20px 40px', display: 'flex', alignItems: 'center', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+          <button 
+            onClick={handleBack} 
+            style={{ 
+              background: 'none', border: 'none', cursor: 'pointer', 
+              display: 'flex', alignItems: 'center', gap: '8px', 
+              color: 'var(--text)', fontWeight: 600, fontSize: '15px' 
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Back
+          </button>
+          <div style={{ marginLeft: 'auto', fontWeight: 'bold', fontSize: '18px', color: 'var(--text)' }}>
+            StudySmart AI
+          </div>
+        </div>
+      ) : (
+        <Navbar />
+      )}
 
       {/* ── HERO ──────────────────────────────────────────── */}
       <section className="pricing-hero">
@@ -127,7 +173,7 @@ export default function PricingPage() {
       <section style={{ padding: '0 0 80px' }}>
         <div className="wrap">
           <div className="pricing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 400px))', justifyContent: 'center' }}>
-            {TIERS.map(tier => {
+            {dynamicTiers.map(tier => {
               const isFeatured = tier.id === 'current';
               return (
                 <Reveal key={tier.id} className={`price-card${isFeatured ? ' featured' : ''}`}>
@@ -229,12 +275,14 @@ export default function PricingPage() {
             <h2>Ready to study smarter?</h2>
             <p>Join students turning documents into knowledge every day.</p>
             <div className="hero-ctas">
-              <Link to="/signup" className="btn btn-secondary btn-lg" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
-                Start Learning
+              <Link to={user ? '/dashboard' : '/signup'} className="btn btn-secondary btn-lg" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
+                {user ? 'Go to Dashboard' : 'Start Learning'}
               </Link>
-              <Link to="/login" className="btn btn-ghost btn-lg" style={{ textDecoration: 'none' }}>
-                Sign in →
-              </Link>
+              {!user && (
+                <Link to="/login" className="btn btn-ghost btn-lg" style={{ textDecoration: 'none' }}>
+                  Sign in →
+                </Link>
+              )}
             </div>
           </Reveal>
         </div>
