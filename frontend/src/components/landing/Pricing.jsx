@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 
 const CheckIcon = () => (
@@ -9,34 +10,41 @@ const CheckIcon = () => (
 
 const PRICING_TIERS = [
   {
-    name: 'Free Trial',
-    price: '$0',
-    period: '/ 7 days',
-    desc: 'Try the core workflow with limited uploads.',
-    features: ['5 document uploads', 'Basic AI summaries', '10 questions per document'],
-    btnText: 'Start Free Trial',
+    name: 'Current Plan',
+    price: 'Free',
+    period: '',
+    desc: 'Everything you need to study smarter right now.',
+    features: [
+      'Document uploads',
+      'AI Study Material generation',
+      'AI Quiz & Question generation',
+      'Study and Quiz History',
+      'Document management',
+      'Dashboard progress tracking'
+    ],
+    btnText: 'Start Learning',
     btnClass: 'btn-secondary',
-    isPopular: false
+    to: '/signup',
+    isPopular: true,
+    disabled: false
   },
   {
-    name: 'Pro Monthly',
-    price: '$19',
-    period: '/ month',
-    desc: 'For students and professionals studying every week.',
-    features: ['Unlimited uploads', 'Advanced AI + priority processing', 'Full question generator suite', 'Notes generator + flashcards'],
-    btnText: 'Upgrade to Pro',
-    btnClass: 'btn-primary',
-    isPopular: true
-  },
-  {
-    name: 'Pro Yearly',
-    price: '$15',
-    period: '/ month',
-    desc: 'Everything in Monthly — billed yearly, 20% off.',
-    features: ['Everything in Pro Monthly', '20% yearly discount', 'Locked-in pricing'],
-    btnText: 'Choose Yearly',
-    btnClass: 'btn-secondary',
-    isPopular: false
+    name: 'Premium',
+    price: 'Coming Soon',
+    period: '',
+    desc: 'Advanced features for power users.',
+    features: [
+      'Higher AI usage limits',
+      'Advanced AI + priority processing',
+      'Additional export options',
+      'Advanced analytics',
+      'Premium learning modes'
+    ],
+    btnText: 'Coming Soon',
+    btnClass: 'btn-ghost',
+    to: '#',
+    isPopular: false,
+    disabled: true
   }
 ];
 
@@ -45,18 +53,18 @@ export default function Pricing() {
     <section id="pricing" style={{ background: 'var(--card)' }}>
       <div className="wrap">
         <Reveal className="section-head">
-          <span className="section-eyebrow">Simple pricing</span>
-          <h2>Start free, upgrade when you're ready</h2>
-          <p>No credit card required for the trial. Cancel anytime.</p>
+          <span className="section-eyebrow">Plans & Pricing</span>
+          <h2>Start free, scale when you're ready</h2>
+          <p>Access our core tools today. Premium features coming in the future.</p>
         </Reveal>
 
-        <div className="pricing-grid">
+        <div className="pricing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 400px))', justifyContent: 'center' }}>
           {PRICING_TIERS.map((tier, idx) => (
             <Reveal key={idx} className={`price-card ${tier.isPopular ? 'featured' : ''}`}>
-              {tier.isPopular && <span className="badge-best">Most Popular</span>}
+              {tier.isPopular && <span className="badge-best">Available Now</span>}
               <div className="price-name">{tier.name}</div>
               <div className="price-amt">
-                <span className="num">{tier.price}</span>
+                <span className="num" style={{ fontSize: tier.price === 'Coming Soon' ? '28px' : undefined }}>{tier.price}</span>
                 <span className="per">{tier.period}</span>
               </div>
               <p className="price-desc">{tier.desc}</p>
@@ -70,9 +78,23 @@ export default function Pricing() {
                 ))}
               </ul>
               
-              <a href="#" className={`btn ${tier.btnClass}`} style={{ marginTop: 'auto', width: '100%' }}>
-                {tier.btnText}
-              </a>
+              {tier.disabled ? (
+                <button
+                  className={`btn ${tier.btnClass}`}
+                  style={{ marginTop: 'auto', width: '100%', cursor: 'not-allowed', opacity: 0.7 }}
+                  disabled
+                >
+                  {tier.btnText}
+                </button>
+              ) : (
+                <Link
+                  to={tier.to}
+                  className={`btn ${tier.btnClass}`}
+                  style={{ marginTop: 'auto', width: '100%', textDecoration: 'none', boxSizing: 'border-box' }}
+                >
+                  {tier.btnText}
+                </Link>
+              )}
             </Reveal>
           ))}
         </div>

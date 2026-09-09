@@ -65,9 +65,21 @@ export default function SettingsPage() {
       setAccount({
         name: user.name || '',
         email: user.email || '',
-        phone: '',
-        location: '',
+        phone: user.profile?.phone || '',
+        location: user.profile?.location || '',
       });
+      
+      if (user.preferences) {
+        setTheme(user.preferences.theme || 'light');
+        setFontSize(user.preferences.fontSize || 'Medium');
+        
+        if (user.preferences.notifications) {
+          setNotifs(user.preferences.notifications);
+        }
+        if (user.preferences.privacy) {
+          setPrivacy(user.preferences.privacy);
+        }
+      }
     }
   }, [user]);
 
@@ -84,6 +96,7 @@ export default function SettingsPage() {
 
   /* ── Appearance ── */
   const [theme, setTheme] = useState('light');
+  const [fontSize, setFontSize] = useState('Medium');
 
   /* ── Password form state ── */
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
@@ -98,23 +111,82 @@ export default function SettingsPage() {
     analytics: true,
   });
 
+  // Auto-save generic settings when changed
+  const saveSettings = async (prefs) => {
+    try {
+      await apiFetch('/api/account/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prefs)
+      });
+      await refreshUser();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   /* ── Save handlers ── */
-  function saveAccount(e) {
+  const { refreshUser } = useAuth();
+  
+  async function saveAccount(e) {
     e.preventDefault();
-    setAccountSaved(true);
-    setTimeout(() => setAccountSaved(false), 2500);
+    try {
+      const res = await apiFetch('/api/account/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: account.name,
+          profile: {
+            phone: account.phone,
+            location: account.location,
+            university: user?.profile?.university || '',
+            field: user?.profile?.field || '',
+            level: user?.profile?.level || '',
+            goal: user?.profile?.goal || '',
+            bio: user?.profile?.bio || ''
+          }
+        })
+      });
+      if (res.ok) {
+        setAccountSaved(true);
+        setTimeout(() => setAccountSaved(false), 2500);
+        await refreshUser();
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
-  function savePassword(e) {
+  async function savePassword(e) {
     e.preventDefault();
     if (!pwForm.current) { setPwError('Current password is required.'); return; }
     if (!pwForm.next) { setPwError('New password is required.'); return; }
     if (pwForm.next.length < 8) { setPwError('New password must be at least 8 characters.'); return; }
     if (pwForm.next !== pwForm.confirm) { setPwError('Passwords do not match.'); return; }
     setPwError('');
-    setPwSaved(true);
-    setPwForm({ current: '', next: '', confirm: '' });
-    setTimeout(() => setPwSaved(false), 2500);
+    
+    try {
+      const res = await apiFetch('/api/account/password', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          current_password: pwForm.current,
+          new_password: pwForm.next
+        })
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        setPwError(errorData.detail || 'Failed to update password');
+        return;
+      }
+      
+      setPwSaved(true);
+      setPwForm({ current: '', next: '', confirm: '' });
+      setTimeout(() => setPwSaved(false), 2500);
+    } catch (e) {
+      setPwError('An error occurred. Please try again.');
+    }
   }
 
   /* ── Password eye icon ── */
@@ -209,7 +281,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <button id="save-account" type="button" className="btn btn-secondary" disabled title="Profile editing is not available yet.">
+        <button id="save-account" type="submit" className="btn btn-secondary">
           <Save size={14} strokeWidth={2} />
           Save Account
         </button>
@@ -238,7 +310,11 @@ export default function SettingsPage() {
             <Toggle
               id={`notif-${row.key}`}
               checked={notifs[row.key]}
-              onChange={e => setNotifs(p => ({ ...p, [row.key]: e.target.checked }))}
+              onChange={e => {
+                const newNotifs = { ...notifs, [row.key]: e.target.checked };
+                setNotifs(newNotifs);
+                saveSettings({ theme, fontSize, notifications: newNotifs, privacy });
+              }}
             />
           </div>
         ))}
@@ -275,7 +351,10 @@ export default function SettingsPage() {
               key={t.id}
               type="button"
               className={`appearance-card${theme === t.id ? ' active' : ''}`}
-              onClick={() => setTheme(t.id)}
+              onClick={() => {
+                setTheme(t.id);
+                saveSettings({ theme: t.id, fontSize, notifications: notifs, privacy });
+              }}
               id={`theme-${t.id}`}
             >
               <div className="appearance-preview" style={{ background: t.preview }} />
@@ -296,6 +375,10 @@ export default function SettingsPage() {
               <button
                 key={size}
                 type="button"
+                onClick={() => {
+                  setFontSize(size);
+                  saveSettings({ theme, fontSize: size, notifications: notifs, privacy });
+                }}
                 style={{
                   padding: '7px 18px',
                   border: 'none',
@@ -304,9 +387,9 @@ export default function SettingsPage() {
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: size === 'Medium' ? '#fff' : 'none',
-                  color: size === 'Medium' ? 'var(--text)' : 'var(--text-muted)',
-                  boxShadow: size === 'Medium' ? 'var(--shadow-sm)' : 'none',
+                  background: fontSize === size ? '#fff' : 'none',
+                  color: fontSize === size ? 'var(--text)' : 'var(--text-muted)',
+                  boxShadow: fontSize === size ? 'var(--shadow-sm)' : 'none',
                   transition: 'all .15s',
                 }}
               >
@@ -407,7 +490,11 @@ export default function SettingsPage() {
             <Toggle
               id={`priv-${row.key}`}
               checked={privacy[row.key]}
-              onChange={e => setPrivacy(p => ({ ...p, [row.key]: e.target.checked }))}
+              onChange={e => {
+                const newPrivacy = { ...privacy, [row.key]: e.target.checked };
+                setPrivacy(newPrivacy);
+                saveSettings({ theme, fontSize, notifications: notifs, privacy: newPrivacy });
+              }}
             />
           </div>
         ))}

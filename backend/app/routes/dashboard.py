@@ -6,6 +6,7 @@ from bson import ObjectId
 
 from app.database import get_database
 from app.routes.auth import get_current_user
+from app.utils.stats import get_user_statistics
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -15,43 +16,14 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
     user_id = current_user.get("_id") or current_user.get("id")
     user_id_str = str(user_id)
     
-    # 1. Documents Uploaded & Storage Used
-    docs_cursor = db.documents.find({"user_id": user_id})
-    documents = await docs_cursor.to_list(length=None)
+    stats = await get_user_statistics(db, user_id, user_id_str)
     
-    total_docs = len(documents)
-    total_size_bytes = sum(doc.get("file_size_bytes", 0) for doc in documents)
-    
-    mb = total_size_bytes / (1024 * 1024)
-    if mb >= 1.0:
-        size_str = f"{mb:.1f} MB"
-    elif total_size_bytes > 0:
-        size_str = f"{round(total_size_bytes / 1024)} KB"
-    else:
-        size_str = "0 KB"
-        
-    # 2. Questions Generated
-    # We need to count actual questions within completed question sessions
-    q_cursor = db.question_sessions.find({"user_id": user_id_str, "status": "Completed"})
-    q_sessions = await q_cursor.to_list(length=None)
-    
-    total_questions = 0
-    for s in q_sessions:
-        result = s.get("result")
-        if result and isinstance(result, dict):
-            questions = result.get("questions")
-            if isinstance(questions, list):
-                total_questions += len(questions)
-    
-    # 3. Learning Progress
-    # As requested, returning "-" since tracking is not implemented
-    learning_progress = "—"
-    
+    # Return exactly the same keys Dashboard expects
     return {
-        "documents_uploaded": str(total_docs),
-        "storage_used": size_str,
-        "questions_generated": str(total_questions),
-        "learning_progress": learning_progress
+        "documents_uploaded": stats["documents_uploaded"],
+        "storage_used": stats["storage_used"],
+        "questions_generated": stats["questions_generated"],
+        "learning_progress": stats["learning_progress"]
     }
 
 @router.get("/search")

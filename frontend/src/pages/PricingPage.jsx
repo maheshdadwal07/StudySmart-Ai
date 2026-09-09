@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/landing/Navbar';
 import Footer from '../components/landing/Footer';
@@ -29,87 +29,70 @@ function IconCross() {
 /* ── Data ── */
 const TIERS = [
   {
-    id: 'free',
-    name: 'Free Trial',
-    price: '$0',
-    period: '/ 7 days',
+    id: 'current',
+    name: 'Current Plan',
+    price: 'Free',
+    period: '',
     note: null,
-    desc: 'Try the full workflow with no commitment.',
+    desc: 'Everything you need to study smarter right now.',
     features: [
-      '5 document uploads',
-      'Basic AI summaries',
-      '10 questions per document',
-      'Standard processing speed',
+      'Document uploads',
+      'AI Study Material generation',
+      'AI Quiz & Question generation',
+      'Study and Quiz History',
+      'Document management',
+      'Dashboard progress tracking'
     ],
-    btnText: 'Start Free Trial',
+    btnText: 'Start Learning',
     btnClass: 'btn-secondary',
     to: '/signup',
+    disabled: false
   },
   {
-    id: 'monthly',
-    name: 'Pro Monthly',
-    price: '$19',
-    period: '/ month',
+    id: 'premium',
+    name: 'Premium',
+    price: 'Coming Soon',
+    period: '',
     note: null,
-    desc: 'For students and professionals studying daily.',
+    desc: 'Advanced features for power users.',
     features: [
-      'Unlimited document uploads',
+      'Higher AI usage limits',
       'Advanced AI + priority processing',
-      'Full question generator suite',
-      'Flashcards & smart notes',
-      'Interview prep mode',
-      'Unlimited history & export',
+      'Additional export options',
+      'Advanced analytics',
+      'Premium learning modes'
     ],
-    btnText: 'Upgrade to Pro',
-    btnClass: 'btn-primary',
-    to: '/signup',
-  },
-  {
-    id: 'yearly',
-    name: 'Pro Yearly',
-    price: '$15',
-    period: '/ month',
-    note: 'Billed $180 / yr — save $48',
-    desc: 'All of Pro Monthly, billed once a year.',
-    features: [
-      'Everything in Pro Monthly',
-      'Save $48 vs monthly billing',
-      'Annual invoice for taxes',
-      'Locked-in pricing guarantee',
-    ],
-    btnText: 'Choose Yearly',
-    btnClass: 'btn-secondary',
-    to: '/signup',
-  },
+    btnText: 'Coming Soon',
+    btnClass: 'btn-ghost',
+    to: '#',
+    disabled: true
+  }
 ];
 
 const COMPARISON = [
   {
-    label: 'Documents & Processing',
+    label: 'Core Features',
     rows: [
-      { feature: 'Monthly uploads',       free: '5 docs',           pro: 'Unlimited' },
-      { feature: 'Max file size',          free: '10 MB',            pro: '100 MB' },
-      { feature: 'Supported formats',      free: 'PDF, DOCX',        pro: 'PDF, DOCX, PPTX, TXT' },
-      { feature: 'Processing speed',       free: 'Standard',         pro: 'Priority' },
+      { feature: 'Document uploads', current: true, premium: true },
+      { feature: 'AI Study Material generation', current: true, premium: true },
+      { feature: 'AI Quiz generation', current: true, premium: true },
+      { feature: 'Study History', current: true, premium: true },
     ],
   },
   {
-    label: 'AI Features',
+    label: 'AI Capabilities',
     rows: [
-      { feature: 'AI summaries',           free: 'Basic',            pro: 'Advanced' },
-      { feature: 'Smart notes generator',  free: true,               pro: true },
-      { feature: 'Question generator',     free: '10 / document',    pro: 'Unlimited' },
-      { feature: 'MCQs with explanations', free: false,              pro: true },
-      { feature: 'Flashcard generator',    free: false,              pro: true },
-      { feature: 'Interview prep mode',    free: false,              pro: true },
+      { feature: 'AI model', current: 'Standard', premium: 'Advanced' },
+      { feature: 'Processing speed', current: 'Standard', premium: 'Priority' },
+      { feature: 'Usage limits', current: 'Standard limits', premium: 'Higher limits' },
     ],
   },
   {
-    label: 'Account & Export',
+    label: 'Advanced & Export',
     rows: [
-      { feature: 'History retention',      free: '7 days',           pro: 'Unlimited' },
-      { feature: 'Export (PDF, DOCX)',     free: false,              pro: true },
-      { feature: 'Customer support',       free: 'Community',        pro: 'Priority email' },
+      { feature: 'Export options', current: false, premium: true },
+      { feature: 'Advanced analytics', current: false, premium: true },
+      { feature: 'Premium learning modes', current: false, premium: true },
     ],
   },
 ];
@@ -125,8 +108,6 @@ function CellVal({ val }) {
    PRICING PAGE
    ============================================================ */
 export default function PricingPage() {
-  const [billing, setBilling] = useState('monthly');
-
   return (
     <>
       <Navbar />
@@ -135,27 +116,9 @@ export default function PricingPage() {
       <section className="pricing-hero">
         <div className="wrap">
           <Reveal className="pricing-hero-inner">
-            <span className="section-eyebrow">Simple pricing</span>
+            <span className="section-eyebrow">Plans & Pricing</span>
             <h1>Start free, scale when you're ready</h1>
-            <p>No credit card required for the trial. Cancel anytime.</p>
-
-            <div className="billing-switch">
-              <button
-                id="billing-monthly"
-                className={billing === 'monthly' ? 'active' : ''}
-                onClick={() => setBilling('monthly')}
-              >
-                Monthly
-              </button>
-              <button
-                id="billing-yearly"
-                className={billing === 'yearly' ? 'active' : ''}
-                onClick={() => setBilling('yearly')}
-              >
-                Yearly
-                <span className="billing-badge">Save 20%</span>
-              </button>
-            </div>
+            <p>Access our core tools today. Premium features coming in the future.</p>
           </Reveal>
         </div>
       </section>
@@ -163,15 +126,15 @@ export default function PricingPage() {
       {/* ── PRICING CARDS ─────────────────────────────────── */}
       <section style={{ padding: '0 0 80px' }}>
         <div className="wrap">
-          <div className="pricing-grid">
+          <div className="pricing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 400px))', justifyContent: 'center' }}>
             {TIERS.map(tier => {
-              const isFeatured = tier.id === billing;
+              const isFeatured = tier.id === 'current';
               return (
                 <Reveal key={tier.id} className={`price-card${isFeatured ? ' featured' : ''}`}>
-                  {isFeatured && <span className="badge-best">Most Popular</span>}
+                  {isFeatured && <span className="badge-best">Available Now</span>}
                   <div className="price-name">{tier.name}</div>
                   <div className="price-amt">
-                    <span className="num">{tier.price}</span>
+                    <span className="num" style={{ fontSize: tier.price === 'Coming Soon' ? '28px' : undefined }}>{tier.price}</span>
                     <span className="per">{tier.period}</span>
                   </div>
                   {tier.note && (
@@ -190,20 +153,27 @@ export default function PricingPage() {
                     ))}
                   </ul>
 
-                  <Link
-                    to={tier.to}
-                    className={`btn ${tier.btnClass}`}
-                    style={{ marginTop: 'auto', width: '100%', textDecoration: 'none', boxSizing: 'border-box' }}
-                  >
-                    {tier.btnText}
-                  </Link>
+                  {tier.disabled ? (
+                    <button
+                      className={`btn ${tier.btnClass}`}
+                      style={{ marginTop: 'auto', width: '100%', cursor: 'not-allowed', opacity: 0.7 }}
+                      disabled
+                    >
+                      {tier.btnText}
+                    </button>
+                  ) : (
+                    <Link
+                      to={tier.to}
+                      className={`btn ${tier.btnClass}`}
+                      style={{ marginTop: 'auto', width: '100%', textDecoration: 'none', boxSizing: 'border-box' }}
+                    >
+                      {tier.btnText}
+                    </Link>
+                  )}
                 </Reveal>
               );
             })}
           </div>
-          <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--text-muted)', marginTop: 24 }}>
-            All plans include a 7-day free trial · No credit card required · Cancel anytime
-          </p>
         </div>
       </section>
 
@@ -212,33 +182,29 @@ export default function PricingPage() {
         <div className="wrap">
           <Reveal className="section-head">
             <span className="section-eyebrow">Compare plans</span>
-            <h2>Everything included in each plan</h2>
+            <h2>What to expect</h2>
           </Reveal>
 
           <div className="ct-scroll">
-            <div className="ct-wrap">
+            <div className="ct-wrap" style={{ maxWidth: 800, margin: '0 auto' }}>
               {/* Header */}
-              <div className="ct-header">
+              <div className="ct-header" style={{ gridTemplateColumns: '2fr 1fr 1fr' }}>
                 <div className="ct-feat-head">Feature</div>
-                <div className="ct-col-head">Free Trial</div>
+                <div className="ct-col-head">Current Plan</div>
                 <div className="ct-col-head ct-col-pro">
-                  Pro Monthly<span>$19 / mo</span>
-                </div>
-                <div className="ct-col-head ct-col-pro">
-                  Pro Yearly<span>$15 / mo</span>
+                  Premium<span>Coming Soon</span>
                 </div>
               </div>
 
               {/* Rows */}
               {COMPARISON.map(section => (
                 <React.Fragment key={section.label}>
-                  <div className="ct-section-label">{section.label}</div>
+                  <div className="ct-section-label" style={{ gridColumn: 'span 3' }}>{section.label}</div>
                   {section.rows.map(row => (
-                    <div key={row.feature} className="ct-row">
+                    <div key={row.feature} className="ct-row" style={{ gridTemplateColumns: '2fr 1fr 1fr' }}>
                       <div className="ct-feat">{row.feature}</div>
-                      <div className="ct-cell"><CellVal val={row.free} /></div>
-                      <div className="ct-cell"><CellVal val={row.pro} /></div>
-                      <div className="ct-cell"><CellVal val={row.pro} /></div>
+                      <div className="ct-cell"><CellVal val={row.current} /></div>
+                      <div className="ct-cell"><CellVal val={row.premium} /></div>
                     </div>
                   ))}
                 </React.Fragment>
@@ -261,10 +227,10 @@ export default function PricingPage() {
         <div className="wrap">
           <Reveal className="cta-banner">
             <h2>Ready to study smarter?</h2>
-            <p>Join 50,000+ students turning documents into knowledge every day.</p>
+            <p>Join students turning documents into knowledge every day.</p>
             <div className="hero-ctas">
               <Link to="/signup" className="btn btn-secondary btn-lg" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
-                Start Free Trial
+                Start Learning
               </Link>
               <Link to="/login" className="btn btn-ghost btn-lg" style={{ textDecoration: 'none' }}>
                 Sign in →

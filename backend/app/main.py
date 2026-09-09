@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import connect_to_mongo, close_mongo_connection, db
-from app.routes import auth, documents, study, questions, history
+from app.routes import auth, documents, study, questions, history, dashboard, account
 from app.utils.cloudinary_helper import init_cloudinary
 
 @asynccontextmanager
@@ -37,6 +37,8 @@ app.include_router(documents.router)
 app.include_router(study.router)
 app.include_router(questions.router)
 app.include_router(history.router)
+app.include_router(dashboard.router)
+app.include_router(account.router)
 
 @app.get("/api/health")
 async def health_check():

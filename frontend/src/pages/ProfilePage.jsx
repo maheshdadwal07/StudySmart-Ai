@@ -104,38 +104,91 @@ export default function ProfilePage() {
   const INITIAL = {
     name: user?.name || 'User',
     email: user?.email || '',
-    phone: '',
-    location: '',
-    university: '',
-    field: '',
-    level: '',
-    goal: '',
-    bio: '',
+    phone: user?.profile?.phone || '',
+    location: user?.profile?.location || '',
+    university: user?.profile?.university || '',
+    field: user?.profile?.field || '',
+    level: user?.profile?.level || '',
+    goal: user?.profile?.goal || '',
+    bio: user?.profile?.bio || '',
   };
 
+  const [form, setForm] = useState(INITIAL);
   const saved = INITIAL;
 
+  // Sync state if user changes
   useEffect(() => {
-    async function fetchCount() {
+    setForm(INITIAL);
+  }, [user]);
+
+  useEffect(() => {
+    async function fetchStats() {
       try {
-        const res = await apiFetch('/api/documents');
+        const res = await apiFetch('/api/account/stats');
         if (res.ok) {
           const data = await res.json();
-          setDocCount(data.documents ? data.documents.length : 0);
+          setStatsData({
+            documents_uploaded: data.documents_uploaded,
+            learning_progress: data.learning_progress,
+            questions_generated: data.questions_generated,
+            study_sessions: data.study_sessions,
+            storage_used: data.storage_used
+          });
         }
       } catch (e) {
         console.error(e);
       }
     }
-    if (user) fetchCount();
+    if (user) fetchStats();
   }, [user]);
 
-  const stats = PROFILE_STATS.map(s => 
-    s.title === 'Documents Uploaded' ? { ...s, value: docCount.toString() } : s
-  );
+  const [statsData, setStatsData] = useState({
+    documents_uploaded: '—',
+    learning_progress: '—',
+    questions_generated: '—',
+    study_sessions: '—',
+    storage_used: '—'
+  });
 
-  // Editing disabled since no backend endpoint exists
-  const isEditing = false;
+  const stats = PROFILE_STATS.map(s => {
+    if (s.title === 'Documents Uploaded') return { ...s, value: statsData.documents_uploaded };
+    if (s.title === 'Learning Progress') return { ...s, value: statsData.learning_progress };
+    if (s.title === 'Questions Generated') return { ...s, value: statsData.questions_generated };
+    if (s.title === 'Study Sessions') return { ...s, value: statsData.study_sessions };
+    return s;
+  });
+
+  const [isEditing, setIsEditing] = useState(false);
+  const { refreshUser } = useAuth();
+  
+  const field = (key) => (e) => setForm(p => ({ ...p, [key]: e.target.value }));
+  
+  const handleSave = async () => {
+    try {
+      const res = await apiFetch('/api/account/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          profile: {
+            phone: form.phone,
+            location: form.location,
+            university: form.university,
+            field: form.field,
+            level: form.level,
+            goal: form.goal,
+            bio: form.bio
+          }
+        })
+      });
+      if (res.ok) {
+        await refreshUser();
+        setIsEditing(false);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   /* ── Info row (view mode) ── */
   function InfoRow({ icon: Icon, label, value }) {
@@ -185,7 +238,23 @@ export default function ProfilePage() {
           <p>Manage your personal information and academic details.</p>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Editing currently unavailable</span>
+          {isEditing ? (
+            <>
+              <button type="button" className="btn btn-secondary" onClick={() => { setIsEditing(false); setForm(saved); }}>
+                <X size={14} strokeWidth={2} />
+                Cancel
+              </button>
+              <button type="button" className="btn btn-primary" onClick={handleSave}>
+                <Check size={14} strokeWidth={2} />
+                Save Profile
+              </button>
+            </>
+          ) : (
+            <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(true)}>
+              <Edit2 size={14} strokeWidth={2} />
+              Edit Profile
+            </button>
+          )}
         </div>
       </div>
 
