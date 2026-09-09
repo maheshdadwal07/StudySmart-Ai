@@ -1,32 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
-  User, Bell, Palette, Lock, Shield,
+  User, Palette, Lock, Shield,
   Mail, Phone, MapPin, Save
 } from 'lucide-react';
+import { apiFetch } from '../api/client';
 import '../styles/dashboard.css';
 import '../styles/auth.css';
 import '../styles/settings.css';
 
-/* ── Toggle switch — local helper renders the pseudo-element pattern ── */
-function Toggle({ id, checked, onChange }) {
-  return (
-    <label className="toggle-wrap" htmlFor={id}>
-      <input
-        id={id}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-      />
-      <span className="toggle-track" />
-    </label>
-  );
-}
-
 /* ── Tabs config ── */
 const TABS = [
   { id: 'account', label: 'Account', icon: User },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'appearance', label: 'Appearance', icon: Palette },
   { id: 'password', label: 'Password', icon: Lock },
   { id: 'privacy', label: 'Privacy', icon: Shield },
@@ -49,7 +35,8 @@ const PW_LABELS = ['', 'Weak', 'Fair', 'Good', 'Strong'];
    SETTINGS PAGE
    ============================================================ */
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('account');
 
   /* ── Account form state ── */
@@ -72,27 +59,11 @@ export default function SettingsPage() {
       if (user.preferences) {
         setTheme(user.preferences.theme || 'light');
         setFontSize(user.preferences.fontSize || 'Medium');
-        
-        if (user.preferences.notifications) {
-          setNotifs(user.preferences.notifications);
-        }
-        if (user.preferences.privacy) {
-          setPrivacy(user.preferences.privacy);
-        }
       }
     }
   }, [user]);
 
   const [accountSaved, setAccountSaved] = useState(false);
-
-  /* ── Notification toggles ── */
-  const [notifs, setNotifs] = useState({
-    emailDigest: true,
-    studyReminders: true,
-    weeklyReport: false,
-    newFeatures: true,
-    questionResults: true,
-  });
 
   /* ── Appearance ── */
   const [theme, setTheme] = useState('light');
@@ -104,12 +75,11 @@ export default function SettingsPage() {
   const [pwError, setPwError] = useState('');
   const [pwSaved, setPwSaved] = useState(false);
 
-  /* ── Privacy toggles ── */
-  const [privacy, setPrivacy] = useState({
-    publicProfile: false,
-    activityFeed: false,
-    analytics: true,
-  });
+  /* ── Delete Account state ── */
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Auto-save generic settings when changed
   const saveSettings = async (prefs) => {
@@ -126,8 +96,6 @@ export default function SettingsPage() {
   };
 
   /* ── Save handlers ── */
-  const { refreshUser } = useAuth();
-  
   async function saveAccount(e) {
     e.preventDefault();
     try {
@@ -183,9 +151,47 @@ export default function SettingsPage() {
       
       setPwSaved(true);
       setPwForm({ current: '', next: '', confirm: '' });
-      setTimeout(() => setPwSaved(false), 2500);
+      setTimeout(async () => {
+        setPwSaved(false);
+        // Force logout to apply new password sessions
+        await logout();
+        navigate('/login');
+      }, 1500);
     } catch (e) {
       setPwError('An error occurred. Please try again.');
+    }
+  }
+
+  async function handleDeleteAccount(e) {
+    e.preventDefault();
+    if (!deletePassword) {
+      setDeleteError('Please enter your password to confirm.');
+      return;
+    }
+    
+    setIsDeleting(true);
+    setDeleteError('');
+
+    try {
+      const res = await apiFetch('/api/account', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        setDeleteError(errorData.detail || 'Failed to delete account');
+        setIsDeleting(false);
+        return;
+      }
+
+      // Successful deletion
+      await logout();
+      navigate('/');
+    } catch (e) {
+      setDeleteError('An unexpected error occurred. Please try again.');
+      setIsDeleting(false);
     }
   }
 
@@ -231,54 +237,81 @@ export default function SettingsPage() {
 
   /* ── ACCOUNT TAB ── */
   function AccountTab() {
-    const FIELDS = [
-      { key: 'name', label: 'Full Name', type: 'text', icon: User, placeholder: 'Your full name' },
-      { key: 'email', label: 'Email Address', type: 'email', icon: Mail, placeholder: 'you@example.com' },
-      { key: 'phone', label: 'Phone Number', type: 'tel', icon: Phone, placeholder: '+1 (555) 000-0000' },
-      { key: 'location', label: 'Location', type: 'text', icon: MapPin, placeholder: 'City, Country' },
-    ];
-
     return (
       <form onSubmit={saveAccount}>
         <SavedBanner show={accountSaved} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
-          {FIELDS.map(field => {
-            const FieldIcon = field.icon;
-            return (
-              <div key={field.key} className="form-group">
-                <label htmlFor={`acc-${field.key}`} className="form-label">{field.label}</label>
-                <div className="input-wrap">
-                  <span className="input-icon">
-                    <FieldIcon size={15} strokeWidth={1.8} color="#9AA1AE" />
-                  </span>
-                  <input
-                    id={`acc-${field.key}`}
-                    type={field.type}
-                    className="auth-input"
-                    placeholder={field.placeholder}
-                    value={account[field.key]}
-                    onChange={e => setAccount(p => ({ ...p, [field.key]: e.target.value }))}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Avatar section */}
-        <div style={{ marginBottom: 24, padding: '18px 0', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Profile Picture</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div className="avatar" style={{ width: 52, height: 52, fontSize: 18, borderRadius: 14, flexShrink: 0 }}>
-              {user?.name?.substring(0, 2).toUpperCase() || 'U'}
-            </div>
-            <div>
-              <button type="button" className="btn btn-secondary" style={{ fontSize: 13, padding: '8px 16px' }}>
-                Change photo
-              </button>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>JPG or PNG, max 2 MB</p>
+          
+          <div className="form-group">
+            <label htmlFor="acc-name" className="form-label">Full Name</label>
+            <div className="input-wrap">
+              <span className="input-icon">
+                <User size={15} strokeWidth={1.8} color="#9AA1AE" />
+              </span>
+              <input
+                id="acc-name"
+                type="text"
+                className="auth-input"
+                placeholder="Your full name"
+                value={account.name}
+                onChange={e => setAccount(p => ({ ...p, name: e.target.value }))}
+                required
+              />
             </div>
           </div>
+
+          <div className="form-group">
+            <label htmlFor="acc-email" className="form-label">Email Address</label>
+            <div className="input-wrap">
+              <span className="input-icon">
+                <Mail size={15} strokeWidth={1.8} color="#9AA1AE" />
+              </span>
+              <input
+                id="acc-email"
+                type="email"
+                className="auth-input"
+                value={account.email}
+                readOnly
+                style={{ backgroundColor: 'var(--border)', color: 'var(--text-muted)', cursor: 'not-allowed' }}
+                title="Email cannot be changed directly."
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="acc-phone" className="form-label">Phone Number</label>
+            <div className="input-wrap">
+              <span className="input-icon">
+                <Phone size={15} strokeWidth={1.8} color="#9AA1AE" />
+              </span>
+              <input
+                id="acc-phone"
+                type="tel"
+                className="auth-input"
+                placeholder="+1 (555) 000-0000"
+                value={account.phone}
+                onChange={e => setAccount(p => ({ ...p, phone: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="acc-location" className="form-label">Location</label>
+            <div className="input-wrap">
+              <span className="input-icon">
+                <MapPin size={15} strokeWidth={1.8} color="#9AA1AE" />
+              </span>
+              <input
+                id="acc-location"
+                type="text"
+                className="auth-input"
+                placeholder="City, Country"
+                value={account.location}
+                onChange={e => setAccount(p => ({ ...p, location: e.target.value }))}
+              />
+            </div>
+          </div>
+
         </div>
 
         <button id="save-account" type="submit" className="btn btn-secondary">
@@ -286,39 +319,6 @@ export default function SettingsPage() {
           Save Account
         </button>
       </form>
-    );
-  }
-
-  /* ── NOTIFICATIONS TAB ── */
-  function NotificationsTab() {
-    const ROWS = [
-      { key: 'emailDigest', label: 'Email digest', desc: 'Receive a daily summary of your study activity.' },
-      { key: 'studyReminders', label: 'Study reminders', desc: 'Get reminded to study if you haven\'t opened the app today.' },
-      { key: 'weeklyReport', label: 'Weekly progress report', desc: 'A weekly email with your learning stats and streak.' },
-      { key: 'newFeatures', label: 'New features & updates', desc: 'Be the first to know about new AI features.' },
-      { key: 'questionResults', label: 'Question session results', desc: 'Get notified when your question score is ready.' },
-    ];
-
-    return (
-      <div>
-        {ROWS.map(row => (
-          <div key={row.key} className="settings-row">
-            <div className="settings-row-info">
-              <div className="settings-row-label">{row.label}</div>
-              <div className="settings-row-desc">{row.desc}</div>
-            </div>
-            <Toggle
-              id={`notif-${row.key}`}
-              checked={notifs[row.key]}
-              onChange={e => {
-                const newNotifs = { ...notifs, [row.key]: e.target.checked };
-                setNotifs(newNotifs);
-                saveSettings({ theme, fontSize, notifications: newNotifs, privacy });
-              }}
-            />
-          </div>
-        ))}
-      </div>
     );
   }
 
@@ -353,7 +353,7 @@ export default function SettingsPage() {
               className={`appearance-card${theme === t.id ? ' active' : ''}`}
               onClick={() => {
                 setTheme(t.id);
-                saveSettings({ theme: t.id, fontSize, notifications: notifs, privacy });
+                saveSettings({ theme: t.id, fontSize });
               }}
               id={`theme-${t.id}`}
             >
@@ -362,11 +362,6 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
-        {theme !== 'light' && (
-          <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 8 }}>
-            Dark mode is coming soon. Your preference has been saved.
-          </p>
-        )}
 
         <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>Font Size</div>
@@ -377,7 +372,7 @@ export default function SettingsPage() {
                 type="button"
                 onClick={() => {
                   setFontSize(size);
-                  saveSettings({ theme, fontSize: size, notifications: notifs, privacy });
+                  saveSettings({ theme, fontSize: size });
                 }}
                 style={{
                   padding: '7px 18px',
@@ -387,8 +382,8 @@ export default function SettingsPage() {
                   fontSize: 13,
                   fontWeight: 600,
                   cursor: 'pointer',
-                  background: fontSize === size ? '#fff' : 'none',
-                  color: fontSize === size ? 'var(--text)' : 'var(--text-muted)',
+                  background: fontSize === size ? 'var(--primary)' : 'transparent',
+                  color: fontSize === size ? '#fff' : 'var(--text-muted)',
                   boxShadow: fontSize === size ? 'var(--shadow-sm)' : 'none',
                   transition: 'all .15s',
                 }}
@@ -473,39 +468,66 @@ export default function SettingsPage() {
 
   /* ── PRIVACY TAB ── */
   function PrivacyTab() {
-    const ROWS = [
-      { key: 'publicProfile', label: 'Public profile', desc: 'Allow others to view your profile and study stats.' },
-      { key: 'activityFeed', label: 'Activity feed', desc: 'Show your recent study sessions to followers.' },
-      { key: 'analytics', label: 'Usage analytics', desc: 'Help improve StudySmart AI by sharing anonymous usage data.' },
-    ];
-
     return (
       <div>
-        {ROWS.map(row => (
-          <div key={row.key} className="settings-row">
-            <div className="settings-row-info">
-              <div className="settings-row-label">{row.label}</div>
-              <div className="settings-row-desc">{row.desc}</div>
-            </div>
-            <Toggle
-              id={`priv-${row.key}`}
-              checked={privacy[row.key]}
-              onChange={e => {
-                const newPrivacy = { ...privacy, [row.key]: e.target.checked };
-                setPrivacy(newPrivacy);
-                saveSettings({ theme, fontSize, notifications: notifs, privacy: newPrivacy });
-              }}
-            />
-          </div>
-        ))}
-
         <div className="danger-zone">
           <h4>Danger Zone</h4>
-          <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
-          <button type="button" className="btn-danger" id="delete-account-btn">
+          <p>Permanently delete your account and all associated data including documents and study history. This action cannot be undone.</p>
+          <button type="button" className="btn-danger" onClick={() => setShowDeleteModal(true)} id="delete-account-btn">
             Delete my account
           </button>
         </div>
+
+        {showDeleteModal && (
+          <div className="modal-overlay">
+            <div className="modal-content" style={{ maxWidth: 400 }}>
+              <h3 style={{ color: '#EF4444', marginBottom: 8, fontSize: 18 }}>Confirm Account Deletion</h3>
+              <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
+                This will permanently delete your account, documents, and all saved study sessions. Please enter your password to confirm.
+              </p>
+              
+              <form onSubmit={handleDeleteAccount}>
+                <div className="input-wrap" style={{ marginBottom: 16 }}>
+                  <span className="input-icon">
+                    <Lock size={15} strokeWidth={1.8} color="#9AA1AE" />
+                  </span>
+                  <input
+                    type="password"
+                    className="auth-input"
+                    placeholder="Enter your password"
+                    value={deletePassword}
+                    onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(''); }}
+                    required
+                  />
+                </div>
+                
+                {deleteError && (
+                  <div style={{ color: '#EF4444', fontSize: 13, marginBottom: 16, fontWeight: 500 }}>
+                    {deleteError}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                  <button 
+                    type="button" 
+                    className="btn btn-ghost" 
+                    onClick={() => { setShowDeleteModal(false); setDeletePassword(''); setDeleteError(''); }}
+                    disabled={isDeleting}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit" 
+                    className="btn btn-danger"
+                    disabled={isDeleting || !deletePassword}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete Account'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -513,7 +535,6 @@ export default function SettingsPage() {
   /* ── Tab content map ── */
   const TAB_CONTENT = {
     account: <AccountTab />,
-    notifications: <NotificationsTab />,
     appearance: <AppearanceTab />,
     password: <PasswordTab />,
     privacy: <PrivacyTab />,
@@ -525,7 +546,7 @@ export default function SettingsPage() {
       <div className="page-head">
         <div>
           <h1>Settings</h1>
-          <p>Manage your account, notifications, and preferences.</p>
+          <p>Manage your account preferences and settings.</p>
         </div>
       </div>
 
@@ -541,6 +562,7 @@ export default function SettingsPage() {
                 className={`settings-tab${activeTab === tab.id ? ' active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
               >
+                <TabIcon size={16} />
                 {tab.label}
               </button>
             );

@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { useAuth } from './contexts/AuthContext'
 import Landing from './pages/Landing'
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
@@ -17,6 +18,39 @@ import StudyMode from './pages/StudyMode'
 import QuestionMode from './pages/QuestionMode'
 
 function App() {
+  const { user } = useAuth();
+
+  useEffect(() => {
+    // 1. Apply Theme
+    let theme = 'light';
+    if (user?.preferences?.theme) {
+      theme = user.preferences.theme;
+    }
+    
+    if (theme === 'system') {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      
+      const listener = (e) => {
+        document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+      };
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    // 2. Apply Font Size
+    let fontScale = 1; // Medium
+    const fontSizePref = user?.preferences?.fontSize || 'Medium';
+    if (fontSizePref === 'Small') fontScale = 0.95;
+    else if (fontSizePref === 'Large') fontScale = 1.05;
+    
+    document.documentElement.style.fontSize = `calc(16px * ${fontScale})`;
+
+  }, [user?.preferences?.theme, user?.preferences?.fontSize]);
+
   return (
     <Routes>
       {/* Public routes */}

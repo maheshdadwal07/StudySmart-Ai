@@ -11,24 +11,9 @@ class UserProfile(BaseModel):
     goal: str = ""
     bio: str = ""
 
-class NotificationPreferences(BaseModel):
-    emailDigest: bool = True
-    studyReminders: bool = True
-    weeklyReport: bool = False
-    newFeatures: bool = True
-    questionResults: bool = True
-
-class PrivacyPreferences(BaseModel):
-    publicProfile: bool = False
-    activityFeed: bool = False
-    analytics: bool = True
-
 class UserPreferences(BaseModel):
     theme: str = "light"
     fontSize: str = "Medium"
-    email_notifications: Optional[bool] = True
-    notifications: NotificationPreferences = Field(default_factory=NotificationPreferences)
-    privacy: PrivacyPreferences = Field(default_factory=PrivacyPreferences)
 
 class SessionModel(BaseModel):
     session_id: str
