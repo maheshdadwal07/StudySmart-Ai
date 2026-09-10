@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 from typing import Optional, Any, Dict
 from pymongo import ReturnDocument
+from pymongo.errors import DuplicateKeyError
 from bson import ObjectId
 
 from app.database import get_database
@@ -24,6 +25,7 @@ class QuestionSessionResponse(BaseModel):
     session_id: str
     status: str
     cached: Optional[bool] = False
+    already_active: Optional[bool] = False
     result: Optional[Dict[str, Any]] = None
     error: Optional[Dict[str, str]] = None
 
@@ -96,48 +98,86 @@ async def create_question_session(
     new_session_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
     
-    session = await db.question_sessions.find_one_and_update(
-        {
-            "cache_key": cache_key,
-            "status": {"$in": ["Queued", "Generating"]}
-        },
-        {
-            "$setOnInsert": {
-                "_id": new_session_id,
-                "user_id": (current_user.get("_id") or current_user.get("id")),
-                "document_id": request.document_id,
-                "status": "Queued",
-                "created_at": now,
-                "updated_at": now,
-                "started_at": None,
-                "completed_at": None,
-                "error_code": None,
-                "error_message": None,
-                "result": None,
-                "document_content_hash": file_hash,
-                "provider": settings.ai_provider,
-                "model": settings.ai_model,
-                "prompt_version": settings.ai_prompt_version,
+    try:
+        session = await db.question_sessions.find_one_and_update(
+            {
                 "cache_key": cache_key,
-                "configuration": configuration
-            }
-        },
-        upsert=True,
-        return_document=ReturnDocument.AFTER
-    )
+                "status": {"$in": ["Queued", "Generating"]}
+            },
+            {
+                "$setOnInsert": {
+                    "_id": new_session_id,
+                    "user_id": str(current_user.get("_id") or current_user.get("id")),
+                    "document_id": request.document_id,
+                    "status": "Queued",
+                    "created_at": now,
+                    "updated_at": now,
+                    "started_at": None,
+                    "completed_at": None,
+                    "error_code": None,
+                    "error_message": None,
+                    "result": None,
+                    "document_content_hash": file_hash,
+                    "provider": settings.ai_provider,
+                    "model": settings.ai_model,
+                    "prompt_version": settings.ai_prompt_version,
+                    "cache_key": cache_key,
+                    "configuration": configuration
+                }
+            },
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+    except DuplicateKeyError:
+        session = await db.question_sessions.find_one(
+            {"cache_key": cache_key, "status": {"$in": ["Queued", "Generating"]}}
+        )
+        if not session:
+            existing_completed = await db.question_sessions.find_one({"cache_key": cache_key, "status": "Completed"})
+            if existing_completed:
+                return QuestionSessionResponse(
+                    session_id=existing_completed["_id"],
+                    status="Completed",
+                    cached=True
+                )
+            raise HTTPException(status_code=500, detail="Concurrency error while creating session.")
+            
+        return QuestionSessionResponse(session_id=session["_id"], status=session["status"], already_active=True)
     
     if session["_id"] == new_session_id:
         background_tasks.add_task(process_question_session_task, new_session_id)
         return QuestionSessionResponse(session_id=new_session_id, status="Queued")
     else:
-        return QuestionSessionResponse(session_id=session["_id"], status=session["status"])
+        return QuestionSessionResponse(session_id=session["_id"], status=session["status"], already_active=True)
+
+@router.get("/active", response_model=QuestionSessionResponse)
+async def get_active_question_session(
+    document_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    db = get_database()
+    
+    # Try to find an active (Queued/Generating) session for this user and document
+    active_session = await db.question_sessions.find_one(
+        {
+            "user_id": (current_user.get("_id") or current_user.get("id")),
+            "document_id": document_id,
+            "status": {"$in": ["Queued", "Generating"]}
+        },
+        sort=[("created_at", -1)]
+    )
+    
+    if active_session:
+        return QuestionSessionResponse(session_id=active_session["_id"], status=active_session["status"], already_active=True)
+    
+    raise HTTPException(status_code=404, detail="No active session found.")
 
 @router.get("/{session_id}", response_model=QuestionSessionResponse)
 async def get_question_session(session_id: str, current_user: dict = Depends(get_current_user)):
     db = get_database()
     session = await db.question_sessions.find_one({"_id": session_id})
     
-    if not session or session["user_id"] != (current_user.get("_id") or current_user.get("id")):
+    if not session or str(session["user_id"]) != str(current_user.get("_id") or current_user.get("id")):
         raise HTTPException(status_code=404, detail="Quiz session not found.")
         
     status = session["status"]

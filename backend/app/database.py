@@ -33,6 +33,16 @@ async def connect_to_mongo():
             partialFilterExpression={"status": {"$in": ["Queued", "Generating", "Completed"]}}
         )
         
+        # Question sessions indexes
+        await database.question_sessions.create_index(
+            [("user_id", ASCENDING), ("document_id", ASCENDING)]
+        )
+        await database.question_sessions.create_index(
+            [("cache_key", ASCENDING)],
+            unique=True,
+            partialFilterExpression={"status": {"$in": ["Queued", "Generating", "Completed"]}}
+        )
+        
         print("MongoDB indexes initialized.")
     except ConnectionFailure as e:
         print(f"Could not connect to MongoDB: {e}")

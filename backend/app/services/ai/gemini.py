@@ -84,6 +84,7 @@ DOCUMENT_CONTENT:
                     response_mime_type="application/json",
                     response_schema=clean_schema,
                     temperature=0.2, # Keep it deterministic for educational content
+                    max_output_tokens=4096, # Sensible limit to prevent runaways
                 ),
             )
             

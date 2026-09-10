@@ -15,6 +15,7 @@ export default function QuestionMode() {
   const [appState, setAppState] = useState('idle');
   const [session, setSession] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [duplicateWarning, setDuplicateWarning] = useState(false);
   
   // Configuration options
   const [questionCount, setQuestionCount] = useState(5);
@@ -67,12 +68,30 @@ export default function QuestionMode() {
   const initializeSession = async () => {
     setAppState('loading_session');
     setErrorMsg(null);
+    setDuplicateWarning(false);
     setUserAnswers({});
     setSubmittedAnswers({});
 
     if (sessionIdParam) {
       await fetchExistingSession(sessionIdParam);
     } else if (docIdParam) {
+      // 1. Check for active session first
+      try {
+        const activeRes = await apiFetch(`/api/ai/questions/active?document_id=${docIdParam}`);
+        if (activeRes.ok) {
+          const activeData = await activeRes.json();
+          if (activeData.session_id) {
+             setSession(activeData);
+             setAppState('generating');
+             startPolling(activeData.session_id);
+             return; // Stop here, do not create a new one
+          }
+        }
+      } catch (err) {
+        // ignore and proceed to POST
+      }
+
+      // 2. Create new session or load cached one
       try {
         const response = await apiFetch('/api/ai/questions', {
           method: 'POST',
@@ -91,6 +110,10 @@ export default function QuestionMode() {
           throw new Error(data.detail || "Failed to start quiz session.");
         }
         
+        if (data.already_active) {
+           setDuplicateWarning(true);
+        }
+
         if (data.status === 'Queued' || data.status === 'Generating') {
           setSession(data);
           setAppState('generating');
@@ -351,6 +374,11 @@ export default function QuestionMode() {
             <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
             <h3>AI is generating your questions...</h3>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>This usually takes about 10-30 seconds.</p>
+            {duplicateWarning && (
+              <div style={{ marginTop: '24px', padding: '12px', backgroundColor: 'var(--info-bg)', color: 'var(--primary)', borderRadius: '8px', display: 'inline-block' }}>
+                Generation already in progress. Please wait for it to complete.
+              </div>
+            )}
           </div>
         )}
 

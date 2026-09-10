@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timezone
 from typing import Dict, Any
+from bson import ObjectId
 
 from app.database import get_database
 from app.services.ai.factory import get_ai_provider
@@ -40,7 +41,7 @@ async def process_study_session_task(session_id: str):
         document_id = session["document_id"]
         
         # 3. Load the document
-        document = await db.documents.find_one({"_id": document_id})
+        document = await db.documents.find_one({"_id": ObjectId(document_id)})
         if not document:
             raise Exception("Document no longer exists.")
             
@@ -130,7 +131,7 @@ async def process_question_session_task(session_id: str):
         configuration = session.get("configuration", {})
         
         # 3. Load the document
-        document = await db.documents.find_one({"_id": document_id})
+        document = await db.documents.find_one({"_id": ObjectId(document_id)})
         if not document:
             raise Exception("Document no longer exists.")
             

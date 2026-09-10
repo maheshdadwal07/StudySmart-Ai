@@ -15,6 +15,7 @@ export default function StudyMode() {
   const [appState, setAppState] = useState('idle');
   const [session, setSession] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [duplicateWarning, setDuplicateWarning] = useState(false);
   
   // Document selector state
   const [documents, setDocuments] = useState([]);
@@ -55,12 +56,29 @@ export default function StudyMode() {
   const initializeSession = async () => {
     setAppState('loading_session');
     setErrorMsg(null);
+    setDuplicateWarning(false);
 
     if (sessionIdParam) {
       // Reopen specific session
       await fetchExistingSession(sessionIdParam);
     } else if (docIdParam) {
-      // Create new session or load cached one for this document
+      // 1. Check for active session first
+      try {
+        const activeRes = await apiFetch(`/api/ai/study/active?document_id=${docIdParam}`);
+        if (activeRes.ok) {
+          const activeData = await activeRes.json();
+          if (activeData.session_id) {
+             setSession(activeData);
+             setAppState('generating');
+             startPolling(activeData.session_id);
+             return; // Stop here, do not create a new one
+          }
+        }
+      } catch (err) {
+        // ignore and proceed to POST
+      }
+
+      // 2. Create new session or load cached one
       try {
         const response = await apiFetch('/api/ai/study', {
           method: 'POST',
@@ -74,12 +92,15 @@ export default function StudyMode() {
           throw new Error(data.detail || "Failed to start study session.");
         }
         
+        if (data.already_active) {
+           setDuplicateWarning(true);
+        }
+
         if (data.status === 'Queued' || data.status === 'Generating') {
           setSession(data);
           setAppState('generating');
           startPolling(data.session_id);
         } else if (data.status === 'Completed') {
-          // Immediately fetch the full result if it's cached
           await fetchExistingSession(data.session_id);
         } else if (data.status === 'Failed') {
           throw new Error("Previous generation attempt failed.");
@@ -298,6 +319,11 @@ export default function StudyMode() {
             <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
             <h3>AI is reading your document...</h3>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>This usually takes about 10-30 seconds depending on document length.</p>
+            {duplicateWarning && (
+              <div style={{ marginTop: '24px', padding: '12px', backgroundColor: 'var(--info-bg)', color: 'var(--primary)', borderRadius: '8px', display: 'inline-block' }}>
+                Generation already in progress. Please wait for it to complete.
+              </div>
+            )}
           </div>
         )}
 
