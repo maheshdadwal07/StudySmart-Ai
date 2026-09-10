@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ChevronLeft, RefreshCw, Loader, AlertCircle, Upload, FileText } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Loader, AlertCircle, Upload, FileText, BookOpen, Lightbulb, Tag, ClipboardList, Zap } from 'lucide-react';
 import Button from '../components/common/Button';
 import { apiFetch } from '../api/client';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
@@ -206,6 +206,14 @@ export default function StudyMode() {
     return 'Ready';
   };
 
+  const isLoading = appState === 'loading_session' || appState === 'generating';
+  const loadingTitle = appState === 'loading_session'
+    ? 'Initializing AI Study Session...'
+    : 'AI is reading your document...';
+  const loadingSub = appState === 'loading_session'
+    ? 'Setting up your study session.'
+    : 'This usually takes 10–30 seconds depending on document length.';
+
   return (
     <div className="study-app">
       <input 
@@ -216,87 +224,83 @@ export default function StudyMode() {
         onChange={handleFileChange} 
       />
 
-      {/* TOP BAR */}
+      {/* ── TOP BAR ── */}
       <div className="topbar">
         <div className="topbar-left">
           <Link to="/uploads" className="back-btn" title="Back to uploads">
-            <ChevronLeft size={16} stroke="#374151" strokeWidth={1.8} />
+            <ChevronLeft size={16} strokeWidth={2} />
           </Link>
           <div className="doc-title-wrap">
             <div className="doc-title">Study Mode</div>
             {(docIdParam || sessionIdParam) && (
               <div className="doc-meta-sm">
-                <span>{getStatusText()}</span>
+                <span className="status-text">{getStatusText()}</span>
               </div>
             )}
           </div>
         </div>
         <div className="topbar-right">
           {(docIdParam || sessionIdParam) && (
-            <Button variant="secondary" onClick={initializeSession} disabled={appState === 'generating' || appState === 'loading_session'}>
-              <RefreshCw size={15} stroke="#111827" strokeWidth={1.9} className={appState === 'generating' ? 'spinning' : ''} />
+            <Button
+              variant="secondary"
+              onClick={initializeSession}
+              disabled={isLoading}
+            >
+              <RefreshCw size={14} strokeWidth={2} className={isLoading ? 'spinning' : ''} />
               <span className="lbltext">Refresh</span>
             </Button>
           )}
         </div>
       </div>
 
-      <div className="workspace" style={{ padding: '24px', overflowY: 'auto' }}>
-        
-        {/* Selecting Document State */}
+      {/* ── WORKSPACE ── */}
+      <div className="workspace" style={{ overflowY: 'auto' }}>
+
+        {/* ── DOCUMENT SELECTOR ── */}
         {(appState === 'idle' || appState === 'loading_docs' || appState === 'selecting') && (
-          <div style={{ maxWidth: '800px', margin: '0 auto', marginTop: '40px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 600 }}>Select a document</h2>
+          <div className="selector-container">
+            <div className="selector-header">
+              <div>
+                <div className="selector-title">Choose a document</div>
+                <div className="selector-subtitle">Select a processed document to generate study material.</div>
+              </div>
               <Button onClick={handleUploadClick} disabled={uploadStatus === 'uploading'}>
-                <Upload size={16} />
+                <Upload size={15} strokeWidth={2} />
                 {uploadStatus === 'uploading' ? 'Uploading...' : 'Upload New'}
               </Button>
             </div>
 
-            {uploadError && <div style={{ color: 'var(--error-text)', marginBottom: '16px', fontSize: '14px' }}>{uploadError}</div>}
-            
+            {uploadError && <div className="upload-error">{uploadError}</div>}
+
             {appState === 'loading_docs' ? (
-              <div style={{ textAlign: 'center', padding: '40px' }}>
-                <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
-                <p>Loading documents...</p>
+              <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                <Loader size={28} className="spinning" style={{ margin: '0 auto 14px', color: 'var(--primary)' }} />
+                <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>Loading documents...</p>
               </div>
-            ) : documents.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'var(--surface-muted)', borderRadius: '12px', border: '1px dashed var(--border)' }}>
-                <FileText size={48} color="var(--text-muted)" style={{ margin: '0 auto 16px' }} />
-                <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text)' }}>No documents available</h3>
-                <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Upload a document to start studying.</p>
+            ) : documents.filter(d => d.status === 'Processed').length === 0 ? (
+              <div className="empty-state">
+                <FileText size={44} color="var(--text-muted)" style={{ margin: '0 auto' }} />
+                <h3>No documents available</h3>
+                <p>Upload a PDF or Word document to start studying.</p>
                 <Button onClick={handleUploadClick}>Upload Document</Button>
               </div>
             ) : (
-              <div style={{ display: 'grid', gap: '12px' }}>
+              <div className="doc-list">
                 {documents.filter(d => d.status === 'Processed').map(doc => (
-                  <div 
-                    key={doc._id} 
+                  <div
+                    key={doc._id}
+                    className="doc-card"
                     onClick={() => selectDocument(doc._id)}
-                    style={{ 
-                      padding: '16px 20px', 
-                      backgroundColor: 'var(--card)', 
-                      border: '1px solid var(--border)', 
-                      borderRadius: '12px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      transition: 'all 0.2s ease',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => e.key === 'Enter' && selectDocument(doc._id)}
                   >
-                    <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(79,70,229,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div className="doc-card-icon">
                       <FileText size={20} color="var(--primary)" />
                     </div>
-                    <div>
-                      <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: '15px' }}>{doc.filename}</div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                        {new Date(doc.created_at).toLocaleDateString()}
-                      </div>
+                    <div className="doc-card-body">
+                      <div className="doc-card-name">{doc.filename}</div>
+                      <div className="doc-card-date">{new Date(doc.created_at).toLocaleDateString()}</div>
                     </div>
                   </div>
                 ))}
@@ -305,101 +309,159 @@ export default function StudyMode() {
           </div>
         )}
 
-        {/* Loading Session State */}
-        {appState === 'loading_session' && (
-          <div style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
-            <p>Initializing AI Study Session...</p>
-          </div>
-        )}
-
-        {/* Generating State */}
-        {appState === 'generating' && (
-          <div style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
-            <h3>AI is reading your document...</h3>
-            <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>This usually takes about 10-30 seconds depending on document length.</p>
-            {duplicateWarning && (
-              <div style={{ marginTop: '24px', padding: '12px', backgroundColor: 'var(--info-bg)', color: 'var(--primary)', borderRadius: '8px', display: 'inline-block' }}>
-                Generation already in progress. Please wait for it to complete.
+        {/* ── LOADING STATE (loading_session + generating) ── */}
+        {isLoading && (
+          <div className="sm-loading">
+            <div className="sm-loading-card">
+              <div className="sm-loading-icon-wrap">
+                <div className="sm-loading-ring" />
+                <div className="sm-loading-icon">
+                  <BookOpen size={20} color="#fff" strokeWidth={2} />
+                </div>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Error State */}
-        {appState === 'error' && (
-          <div className="error-state" style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <AlertCircle size={48} color="var(--error-text)" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ color: 'var(--error-text)', fontSize: '20px' }}>Generation Failed</h3>
-            <p style={{ marginTop: '8px', color: 'var(--text-muted)' }}>{errorMsg || 'An unknown error occurred.'}</p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px' }}>
-              <Button variant="secondary" onClick={() => setSearchParams({})}>Go Back</Button>
-              <Button onClick={initializeSession}>Try Again</Button>
+              <div className="sm-loading-title">{loadingTitle}</div>
+              <div className="sm-loading-sub">{loadingSub}</div>
+              <div className="sm-loading-dots">
+                <span /><span /><span />
+              </div>
+              {duplicateWarning && (
+                <div className="sm-duplicate-notice">
+                  Generation already in progress — please wait for it to complete.
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {/* Success State (Material Display) */}
+        {/* ── ERROR STATE ── */}
+        {appState === 'error' && (
+          <div className="sm-error">
+            <div className="sm-error-card">
+              <div className="sm-error-icon">
+                <AlertCircle size={26} color="var(--error-text)" strokeWidth={2} />
+              </div>
+              <div className="sm-error-title">Generation Failed</div>
+              <div className="sm-error-msg">{errorMsg || 'An unknown error occurred.'}</div>
+              <div className="sm-error-actions">
+                <Button variant="secondary" onClick={() => setSearchParams({})}>Go Back</Button>
+                <Button onClick={initializeSession}>Try Again</Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── SUCCESS STATE — STUDY CONTENT ── */}
         {appState === 'success' && session?.result && (
-          <div className="study-content" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div className="study-content-wrap">
+
             {session.cached && (
-              <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: 'var(--success-bg)', color: 'var(--success-text)', borderRadius: '8px', fontSize: '14px', border: '1px solid var(--success-border)' }}>
-                Loaded instantly from previously saved session.
+              <div className="cached-banner">
+                <Zap size={15} strokeWidth={2} />
+                Loaded instantly from a previously saved session.
               </div>
             )}
-            
+
+            {/* Summary */}
             {session.result.summary && (
-              <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--text)' }}>Summary</h2>
-                <p style={{ lineHeight: '1.7', fontSize: '16px', color: 'var(--text)' }}>{session.result.summary}</p>
-              </section>
-            )}
-            
-            {session.result.key_points?.length > 0 && (
-              <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Key Points</h2>
-                <ul style={{ paddingLeft: '24px' }}>
-                  {session.result.key_points.map((point, i) => (
-                    <li key={i} style={{ marginBottom: '12px', lineHeight: '1.6', color: 'var(--text)', fontSize: '15.5px' }}>{point}</li>
-                  ))}
-                </ul>
+              <section className="study-section">
+                <div className="section-header">
+                  <div className="section-icon summary">
+                    <BookOpen size={16} color="var(--primary)" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div className="section-label">Overview</div>
+                    <div className="section-title">Summary</div>
+                  </div>
+                </div>
+                <div className="summary-body">{session.result.summary}</div>
               </section>
             )}
 
-            {session.result.important_concepts?.length > 0 && (
-              <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Important Concepts</h2>
-                <ul style={{ paddingLeft: '24px' }}>
-                  {session.result.important_concepts.map((concept, i) => (
-                    <li key={i} style={{ marginBottom: '12px', lineHeight: '1.6', color: 'var(--text)', fontSize: '15.5px' }}>{concept}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
-            
-            {session.result.definitions && Object.keys(session.result.definitions).length > 0 && (
-              <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Glossary</h2>
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  {Object.entries(session.result.definitions).map(([term, def], i) => (
-                    <div key={i} style={{ padding: '16px', backgroundColor: 'var(--surface-muted)', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                      <strong style={{ display: 'block', marginBottom: '6px', color: 'var(--text)', fontSize: '15px' }}>{term}</strong>
-                      <span style={{ color: 'var(--text-muted)', lineHeight: '1.5', fontSize: '14.5px' }}>{def}</span>
+            {/* Key Points */}
+            {session.result.key_points?.length > 0 && (
+              <section className="study-section">
+                <div className="section-header">
+                  <div className="section-icon keypoints">
+                    <Lightbulb size={16} color="var(--accent)" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div className="section-label">What to remember</div>
+                    <div className="section-title">Key Points</div>
+                  </div>
+                </div>
+                <div className="kp-list">
+                  {session.result.key_points.map((point, i) => (
+                    <div key={i} className="kp-item">
+                      <div className="kp-bullet">{i + 1}</div>
+                      <div className="kp-text">{point}</div>
                     </div>
                   ))}
                 </div>
               </section>
             )}
-            
-            {session.result.revision_notes && (
-              <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Revision Notes</h2>
-                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: 'var(--text)', padding: '20px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
-                  {session.result.revision_notes}
+
+            {/* Important Concepts */}
+            {session.result.important_concepts?.length > 0 && (
+              <section className="study-section">
+                <div className="section-header">
+                  <div className="section-icon concepts">
+                    <Tag size={16} color="#F59E0B" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div className="section-label">Core ideas</div>
+                    <div className="section-title">Important Concepts</div>
+                  </div>
+                </div>
+                <div className="concepts-list">
+                  {session.result.important_concepts.map((concept, i) => (
+                    <div key={i} className="concept-item">
+                      <div className="concept-dot" />
+                      <div className="concept-text">{concept}</div>
+                    </div>
+                  ))}
                 </div>
               </section>
             )}
+
+            {/* Glossary / Definitions */}
+            {session.result.definitions && Object.keys(session.result.definitions).length > 0 && (
+              <section className="study-section">
+                <div className="section-header">
+                  <div className="section-icon glossary">
+                    <ClipboardList size={16} color="var(--success)" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div className="section-label">Terminology</div>
+                    <div className="section-title">Glossary</div>
+                  </div>
+                </div>
+                <div className="glossary-list">
+                  {Object.entries(session.result.definitions).map(([term, def], i) => (
+                    <div key={i} className="glossary-item">
+                      <div className="glossary-term">{term}</div>
+                      <div className="glossary-def">{def}</div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Revision Notes */}
+            {session.result.revision_notes && (
+              <section className="study-section">
+                <div className="section-header">
+                  <div className="section-icon revision">
+                    <ClipboardList size={16} color="#EF4444" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div className="section-label">Quick reference</div>
+                    <div className="section-title">Revision Notes</div>
+                  </div>
+                </div>
+                <div className="revision-body">{session.result.revision_notes}</div>
+              </section>
+            )}
+
           </div>
         )}
 
