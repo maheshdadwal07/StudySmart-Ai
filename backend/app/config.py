@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # AI Configuration
     ai_provider: str = "gemini"
-    ai_model: str = "gemini-2.5-flash"
+    ai_model: str = "gemini-3.1-flash-lite"
     ai_prompt_version: str = "v1"
     ai_max_chunk_size: int = 15000  # Default to ~15k chars
     ai_chunk_overlap: int = 200

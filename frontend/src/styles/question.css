@@ -17,7 +17,7 @@
 .topbar {
   height: 64px; 
   flex: 0 0 auto; 
-  background: #fff; 
+  background: var(--card); 
   border-bottom: 1px solid var(--border);
   display: flex; 
   align-items: center; 
@@ -30,7 +30,7 @@
   height: 34px; 
   border-radius: 9px; 
   border: 1px solid var(--border); 
-  background: #fff;
+  background: var(--card);
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -48,7 +48,7 @@
   height: 32px; 
   border-radius: 9px; 
   border: 1px solid var(--border); 
-  background: #fff;
+  background: var(--card);
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -66,7 +66,7 @@
 .config-panel {
   width: 340px; 
   flex: 0 0 auto; 
-  background: #fff; 
+  background: var(--card); 
   border-right: 1px solid var(--border);
   display: flex; 
   flex-direction: column; 
@@ -99,9 +99,9 @@
   transition: all .15s; 
   color: var(--text-muted);
 }
-.diff-btn.easy.active {border-color: var(--success); background: rgba(34,197,94,0.09); color: #16A34A;}
-.diff-btn.medium.active {border-color: var(--warning); background: rgba(245,158,11,0.1); color: #B45309;}
-.diff-btn.hard.active {border-color: var(--danger); background: rgba(239,68,68,0.09); color: #DC2626;}
+.diff-btn.easy.active {border-color: var(--success); background: var(--success-bg); color: var(--success-text);}
+.diff-btn.medium.active {border-color: var(--warning); background: var(--warning-bg); color: var(--warning-text);}
+.diff-btn.hard.active {border-color: var(--danger); background: var(--error-bg); color: var(--error-text);}
 
 .qtype-grid {display: flex; flex-direction: column; gap: 8px;}
 .qtype-chip {
@@ -120,12 +120,12 @@
   width: 17px; 
   height: 17px; 
   border-radius: 5px; 
-  border: 1.5px solid #C7CEDB; 
+  border: 1.5px solid var(--border); 
   flex: 0 0 auto;
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  background: #fff;
+  background: var(--card);
 }
 .qtype-chip.active .box {background: var(--primary); border-color: var(--primary);}
 .qtype-chip .qt-text {font-size: 13px; font-weight: 600;}
@@ -154,14 +154,14 @@
   background: var(--card);
   border: 1px solid var(--border);
 }
-.src-icon {width: 32px; height: 32px; border-radius: 9px; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex: 0 0 auto;}
+.src-icon {width: 32px; height: 32px; border-radius: 9px; background: var(--card); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex: 0 0 auto;}
 .src-name {font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .src-meta {font-size: 11px; color: var(--text-muted);}
 
 .config-footer {
   position: sticky; 
   bottom: 0; 
-  background: #fff; 
+  background: var(--card); 
   border-top: 1px solid var(--border); 
   padding: 16px 20px;
   margin-top: auto;
@@ -191,7 +191,7 @@
 .q-list {padding: 0 28px 40px; display: flex; flex-direction: column; gap: 16px;}
 
 .q-card {
-  background: #fff; 
+  background: var(--card); 
   border: 1px solid var(--border); 
   border-radius: 16px; 
   padding: 20px 22px;
@@ -201,9 +201,9 @@
 .q-badges {display: flex; gap: 8px; align-items: center; flex-wrap: wrap;}
 .q-num {font-size: 12px; font-weight: 700; color: var(--text-muted);}
 .badge {font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;}
-.badge-easy {background: rgba(34,197,94,0.1); color: #16A34A;}
-.badge-medium {background: rgba(245,158,11,0.12); color: #B45309;}
-.badge-hard {background: rgba(239,68,68,0.1); color: #DC2626;}
+.badge-easy {background: var(--success-bg); color: var(--success-text);}
+.badge-medium {background: var(--warning-bg); color: var(--warning-text);}
+.badge-hard {background: var(--error-bg); color: var(--error-text);}
 .badge-type {background: rgba(79,70,229,0.08); color: var(--primary);}
 .q-actions {display: flex; gap: 6px;}
 
@@ -229,7 +229,7 @@
   border-radius: 10px;
   border: 1.5px solid var(--border); 
   font-size: 13.5px; 
-  color: #374151;
+  color: var(--text);
 }
 .mcq-opt .letter {
   width: 22px; 
@@ -268,7 +268,7 @@
   border-radius: 12px;
   border: 1px solid var(--border); 
   font-size: 13.5px; 
-  color: #374151; 
+  color: var(--text); 
   line-height: 1.65;
 }
 .answer-box .lbl {font-size: 11px; font-weight: 700; color: var(--success); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block;}

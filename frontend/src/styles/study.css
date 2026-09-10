@@ -17,7 +17,7 @@
 .topbar {
   height: 64px; 
   flex: 0 0 auto; 
-  background: #fff; 
+  background: var(--card); 
   border-bottom: 1px solid var(--border);
   display: flex; 
   align-items: center; 
@@ -30,7 +30,7 @@
   height: 34px; 
   border-radius: 9px; 
   border: 1px solid var(--border); 
-  background: #fff;
+  background: var(--card);
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -62,7 +62,7 @@
   height: 34px; 
   border-radius: 9px; 
   border: 1px solid var(--border); 
-  background: #fff;
+  background: var(--card);
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -94,9 +94,9 @@
 .upload-wrap h1 {font-size: 28px; margin-bottom: 10px;}
 .upload-wrap > p {color: var(--text-muted); font-size: 14.5px; margin-bottom: 32px;}
 .dropzone {
-  border: 2px dashed #C7CEDB; 
+  border: 2px dashed var(--border); 
   border-radius: 22px; 
-  background: #fff;
+  background: var(--card);
   padding: 56px 32px; 
   transition: all .2s ease; 
   cursor: pointer;
@@ -134,7 +134,7 @@
 .doc-pane {
   width: 42%; 
   flex: 0 0 auto; 
-  background: #EEF0F4; 
+  background: var(--surface-muted); 
   border-right: 1px solid var(--border);
   display: flex; 
   flex-direction: column; 
@@ -142,7 +142,7 @@
 }
 .doc-pane-header {
   padding: 14px 20px; 
-  background: #fff; 
+  background: var(--card); 
   border-bottom: 1px solid var(--border);
   display: flex; 
   align-items: center; 
@@ -156,16 +156,16 @@
 .doc-page {
   width: 100%; 
   max-width: 420px; 
-  background: #fff; 
+  background: var(--card); 
   border-radius: 6px; 
   box-shadow: var(--shadow-md);
   padding: 32px 28px; 
   font-size: 12.5px; 
   line-height: 1.85; 
-  color: #374151;
+  color: var(--text);
 }
 .doc-page h4 {font-size: 14px; margin-bottom: 10px; color: var(--text);}
-.doc-page p {margin-bottom: 12px; color: #4B5563;}
+.doc-page p {margin-bottom: 12px; color: var(--text-muted);}
 .doc-page mark {
   background: rgba(6,182,212,0.18); 
   border-radius: 3px; 
@@ -173,9 +173,9 @@
   color: inherit;
 }
 .doc-page mark.hi2 {background: rgba(79,70,229,0.16);}
-.page-num {font-size: 11px; color: #9AA1AE; text-align: center;}
+.page-num {font-size: 11px; color: var(--text-muted); text-align: center;}
 
-.study-pane {flex: 1; display: flex; flex-direction: column; min-width: 0; background: #fff;}
+.study-pane {flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--card);}
 .tabs-row {
   display: flex; 
   gap: 2px; 
@@ -232,7 +232,7 @@
   justify-content: center; 
   font-weight: 700;
 }
-.summary-block p {font-size: 13.5px; color: #374151; line-height: 1.75;}
+.summary-block p {font-size: 13.5px; color: var(--text); line-height: 1.75;}
 
 /* Key points */
 .kp-list {display: flex; flex-direction: column; gap: 12px;}
@@ -241,7 +241,7 @@
   width: 24px; 
   height: 24px; 
   border-radius: 7px; 
-  background: #fff; 
+  background: var(--card); 
   border: 1px solid var(--border); 
   flex: 0 0 auto;
   display: flex; 
@@ -251,7 +251,7 @@
   font-weight: 700; 
   color: var(--primary);
 }
-.kp-item p {font-size: 13.5px; color: #374151;}
+.kp-item p {font-size: 13.5px; color: var(--text);}
 
 /* Topics */
 .topic-grid {display: grid; grid-template-columns: 1fr 1fr; gap: 14px;}
@@ -259,9 +259,9 @@
 .topic-card .th {display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;}
 .topic-card h5 {font-size: 13.5px; font-weight: 700;}
 .topic-badge {font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px;}
-.badge-high {background: rgba(239,68,68,0.1); color: #EF4444;}
-.badge-med {background: rgba(245,158,11,0.12); color: #D97706;}
-.badge-low {background: rgba(34,197,94,0.1); color: #16A34A;}
+.badge-high {background: var(--error-bg); color: var(--error-text);}
+.badge-med {background: var(--warning-bg); color: var(--warning-text);}
+.badge-low {background: var(--success-bg); color: var(--success-text);}
 .topic-card p {font-size: 12.5px;}
 
 /* Flashcards */
@@ -294,7 +294,7 @@
   padding: 28px;
   box-shadow: var(--shadow-md);
 }
-.fc-front {background: linear-gradient(160deg,#fff,var(--card));}
+.fc-front {background: var(--card);}
 .fc-back {background: linear-gradient(135deg,var(--primary),var(--secondary)); color: #fff; transform: rotateY(180deg);}
 .fc-face .lbl {position: absolute; top: 16px; left: 18px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.6;}
 .fc-face .txt {font-size: 16px; font-weight: 700; line-height: 1.5;}
@@ -362,7 +362,7 @@
 /* Notes */
 .notes-block {margin-bottom: 20px;}
 .notes-block h4 {font-size: 14px; margin-bottom: 6px;}
-.notes-block ul {margin: 0; padding-left: 20px; color: #374151; font-size: 13.5px; line-height: 1.8;}
+.notes-block ul {margin: 0; padding-left: 20px; color: var(--text); font-size: 13.5px; line-height: 1.8;}
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width: 900px) {

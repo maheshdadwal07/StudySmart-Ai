@@ -102,8 +102,8 @@ export default function HistoryPage() {
               onClick={() => handleFilterClick('all')}
               style={{ 
                 padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', border: 'none',
-                backgroundColor: filter === 'all' ? '#111827' : '#f3f4f6', 
-                color: filter === 'all' ? '#fff' : '#4b5563',
+                backgroundColor: filter === 'all' ? 'var(--text)' : 'var(--surface-hover)', 
+                color: filter === 'all' ? 'var(--card)' : 'var(--text-muted)',
                 transition: 'all 0.2s'
               }}
             >
@@ -113,8 +113,8 @@ export default function HistoryPage() {
               onClick={() => handleFilterClick('study')}
               style={{ 
                 padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', border: 'none',
-                backgroundColor: filter === 'study' ? '#111827' : '#f3f4f6', 
-                color: filter === 'study' ? '#fff' : '#4b5563',
+                backgroundColor: filter === 'study' ? 'var(--text)' : 'var(--surface-hover)', 
+                color: filter === 'study' ? 'var(--card)' : 'var(--text-muted)',
                 transition: 'all 0.2s'
               }}
             >
@@ -124,8 +124,8 @@ export default function HistoryPage() {
               onClick={() => handleFilterClick('quiz')}
               style={{ 
                 padding: '6px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer', border: 'none',
-                backgroundColor: filter === 'quiz' ? '#111827' : '#f3f4f6', 
-                color: filter === 'quiz' ? '#fff' : '#4b5563',
+                backgroundColor: filter === 'quiz' ? 'var(--text)' : 'var(--surface-hover)', 
+                color: filter === 'quiz' ? 'var(--card)' : 'var(--text-muted)',
                 transition: 'all 0.2s'
               }}
             >
@@ -148,23 +148,23 @@ export default function HistoryPage() {
 
         {error ? (
           <div style={{ padding: '60px 20px', textAlign: 'center' }}>
-            <AlertCircle size={40} color="#ef4444" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '8px' }}>Error</h3>
-            <p style={{ color: '#6b7280', marginBottom: '24px' }}>{error}</p>
+            <AlertCircle size={40} color="var(--error-text)" style={{ margin: '0 auto 16px' }} />
+            <h3 style={{ fontSize: '18px', color: 'var(--text)', marginBottom: '8px' }}>Error</h3>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>{error}</p>
             <Button onClick={() => fetchHistory(page, filter, search)}>Retry</Button>
           </div>
         ) : loading && items.length === 0 ? (
           <div style={{ padding: '80px 20px', textAlign: 'center' }}>
-            <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
-            <p style={{ color: '#6b7280' }}>Loading history...</p>
+            <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
+            <p style={{ color: 'var(--text-muted)' }}>Loading history...</p>
           </div>
         ) : items.length === 0 ? (
-          <div style={{ padding: '80px 20px', textAlign: 'center', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px dashed #e5e7eb' }}>
-            <FileText size={48} color="#9ca3af" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '8px' }}>
+          <div style={{ padding: '80px 20px', textAlign: 'center', backgroundColor: 'var(--surface-muted)', borderRadius: '12px', border: '1px dashed var(--border)' }}>
+            <FileText size={48} color="var(--text-muted)" style={{ margin: '0 auto 16px' }} />
+            <h3 style={{ fontSize: '18px', color: 'var(--text)', marginBottom: '8px' }}>
               {search ? 'No sessions match your search.' : filter === 'study' ? 'No study sessions found.' : filter === 'quiz' ? 'No quiz sessions found.' : 'No study or quiz sessions yet.'}
             </h3>
-            <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>
               {!search && filter !== 'all' ? `Start generating ${filter} sessions to see them here.` : 'Your generated materials will appear here.'}
             </p>
             {!search && (
@@ -179,7 +179,7 @@ export default function HistoryPage() {
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #f3f4f6', color: '#6b7280' }}>
+                  <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
                     <th style={{ padding: '16px 20px', fontWeight: 600 }}>Session</th>
                     <th style={{ padding: '16px 20px', fontWeight: 600 }}>Type</th>
                     <th style={{ padding: '16px 20px', fontWeight: 600 }}>Date</th>
@@ -189,33 +189,33 @@ export default function HistoryPage() {
                 <tbody style={{ position: 'relative' }}>
                   {loading && (
                     <tr>
-                      <td colSpan="4" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.7)', position: 'absolute', width: '100%', height: '100%', zIndex: 10 }}>
-                        <Loader size={24} className="spinning" style={{ color: '#4f46e5', margin: '40px auto' }} />
+                      <td colSpan="4" style={{ padding: '12px', textAlign: 'center', backgroundColor: 'var(--card)', position: 'absolute', width: '100%', height: '100%', zIndex: 10 }}>
+                        <Loader size={24} className="spinning" style={{ color: 'var(--primary)', margin: '40px auto' }} />
                       </td>
                     </tr>
                   )}
                   {items.map((item) => (
-                    <tr key={item.session_id} style={{ borderBottom: '1px solid #f3f4f6', transition: 'background-color 0.15s' }} className="hover:bg-gray-50">
+                    <tr key={item.session_id} style={{ borderBottom: '1px solid var(--border)', transition: 'background-color 0.15s' }}>
                       <td style={{ padding: '16px 20px' }}>
-                        <div style={{ fontWeight: 500, color: '#111827' }}>{item.document_name}</div>
+                        <div style={{ fontWeight: 500, color: 'var(--text)' }}>{item.document_name}</div>
                         {item.type === 'Quiz' && item.metadata?.question_count && (
-                          <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>
+                          <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
                             {item.metadata.question_count} Questions • {item.metadata.difficulty}
                           </div>
                         )}
                         {item.status !== 'Completed' && (
-                          <div style={{ fontSize: '12px', color: item.status === 'Failed' ? '#ef4444' : '#f59e0b', marginTop: '4px', fontWeight: 500 }}>
+                          <div style={{ fontSize: '12px', color: item.status === 'Failed' ? 'var(--error-text)' : 'var(--warning-text)', marginTop: '4px', fontWeight: 500 }}>
                             {item.status}
                           </div>
                         )}
                       </td>
                       <td style={{ padding: '16px 20px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, backgroundColor: item.type === 'Study' ? '#ecfdf5' : '#f5f3ff', color: item.type === 'Study' ? '#059669' : '#7c3aed' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, backgroundColor: item.type === 'Study' ? 'var(--success-bg)' : 'var(--info-bg)', color: item.type === 'Study' ? 'var(--success-text)' : 'var(--info-text)' }}>
                           {item.type === 'Study' ? <Play size={14} /> : <HelpCircle size={14} />}
                           {item.type}
                         </div>
                       </td>
-                      <td style={{ padding: '16px 20px', color: '#6b7280' }}>
+                      <td style={{ padding: '16px 20px', color: 'var(--text-muted)' }}>
                         {new Date(item.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                       </td>
                       <td style={{ padding: '16px 20px', textAlign: 'right' }}>
@@ -235,8 +235,8 @@ export default function HistoryPage() {
             </div>
             
             {/* Pagination Controls */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
-              <div style={{ fontSize: '13px', color: '#6b7280' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
                 Page {page}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>

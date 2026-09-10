@@ -17,7 +17,7 @@ const PROFILE_STATS = [
     value: '—',
     trend: null, trendDir: null,
     icon: FileText,
-    iconBg: 'rgba(79,70,229,0.09)', iconColor: '#4F46E5',
+    iconBg: 'rgba(79,70,229,0.09)', iconColor: 'var(--primary)',
     progress: null, progressColor: null,
   },
   {
@@ -25,7 +25,7 @@ const PROFILE_STATS = [
     value: '—',
     trend: null, trendDir: null,
     icon: TrendingUp,
-    iconBg: 'rgba(34,197,94,0.09)', iconColor: '#22C55E',
+    iconBg: 'rgba(34,197,94,0.09)', iconColor: 'var(--success-text)',
     progress: null,
     progressColor: 'linear-gradient(90deg,var(--primary),var(--accent))',
   },
@@ -34,7 +34,7 @@ const PROFILE_STATS = [
     value: '—',
     trend: null, trendDir: null,
     icon: HelpCircle,
-    iconBg: 'rgba(6,182,212,0.09)', iconColor: '#06B6D4',
+    iconBg: 'rgba(6,182,212,0.09)', iconColor: 'var(--info-text)',
     progress: null, progressColor: null,
   },
   {
@@ -42,7 +42,7 @@ const PROFILE_STATS = [
     value: '—',
     trend: null, trendDir: null,
     icon: BookOpen,
-    iconBg: 'rgba(245,158,11,0.09)', iconColor: '#F59E0B',
+    iconBg: 'rgba(245,158,11,0.09)', iconColor: 'var(--warning-text)',
     progress: null, progressColor: null,
   },
 ];
@@ -52,9 +52,9 @@ const RECENT_ACTIVITY = [];
 
 /* doc-icon SVG per file type — same colours as dashboard.css doc-icon.* */
 const DOC_ICONS = {
-  pdf: { bg: 'rgba(79,70,229,0.08)', border: 'rgba(79,70,229,0.15)', stroke: '#4F46E5' },
-  ppt: { bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.15)', stroke: '#06B6D4' },
-  docx: { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.15)', stroke: '#22C55E' },
+  pdf: { bg: 'rgba(79,70,229,0.08)', border: 'rgba(79,70,229,0.15)', stroke: 'var(--primary)' },
+  ppt: { bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.15)', stroke: 'var(--info-text)' },
+  docx: { bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.15)', stroke: 'var(--success-text)' },
 };
 
 function DocTypeIcon({ type }) {
@@ -93,6 +93,22 @@ const ACADEMIC_VIEW = [
   { key: 'level', label: 'Level', icon: Target },
   { key: 'goal', label: 'Goal', icon: Target },
 ];
+
+/* ── Info row (view mode) ── */
+function InfoRow({ icon: Icon, label, value }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--card)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <Icon size={14} strokeWidth={1.8} color="var(--text-muted)" />
+      </div>
+      <div>
+        <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
+        <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--text)', marginTop: 2 }}>{value || '—'}</div>
+      </div>
+    </div>
+  );
+}
+
 
 /* ============================================================
    PROFILE PAGE
@@ -190,44 +206,6 @@ export default function ProfilePage() {
     }
   };
 
-  /* ── Info row (view mode) ── */
-  function InfoRow({ icon: Icon, label, value }) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--card)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon size={14} strokeWidth={1.8} color="#6B7280" />
-        </div>
-        <div>
-          <div style={{ fontSize: 11.5, fontWeight: 700, color: '#9AA1AE', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</div>
-          <div style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--text)', marginTop: 2 }}>{value || '—'}</div>
-        </div>
-      </div>
-    );
-  }
-
-  /* ── Form field (edit mode) ── */
-  function FieldRow({ f }) {
-    const FIcon = f.icon;
-    return (
-      <div className="form-group">
-        <label htmlFor={`prof-${f.key}`} className="form-label">{f.label}</label>
-        <div className="input-wrap">
-          <span className="input-icon">
-            <FIcon size={15} strokeWidth={1.8} color="#9AA1AE" />
-          </span>
-          <input
-            id={`prof-${f.key}`}
-            type={f.type}
-            className="auth-input"
-            placeholder={f.placeholder}
-            value={form[f.key]}
-            onChange={field(f.key)}
-          />
-        </div>
-      </div>
-    );
-  }
-
   /* ── Render ── */
   return (
     <>
@@ -317,7 +295,27 @@ export default function ProfilePage() {
 
             {isEditing ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {PERSONAL_FIELDS.map(f => <FieldRow key={f.key} f={f} />)}
+                {PERSONAL_FIELDS.map(f => {
+                  const FIcon = f.icon;
+                  return (
+                    <div key={f.key} className="form-group">
+                      <label htmlFor={`prof-${f.key}`} className="form-label">{f.label}</label>
+                      <div className="input-wrap">
+                        <span className="input-icon">
+                          <FIcon size={15} strokeWidth={1.8} color="var(--text-muted)" />
+                        </span>
+                        <input
+                          id={`prof-${f.key}`}
+                          type={f.type}
+                          className="auth-input"
+                          placeholder={f.placeholder}
+                          value={form[f.key] || ''}
+                          onChange={field(f.key)}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
                 <div className="form-group">
                   <label htmlFor="prof-bio" className="form-label">Bio</label>
                   <textarea
@@ -336,7 +334,7 @@ export default function ProfilePage() {
                   <InfoRow key={item.key} icon={item.icon} label={item.label} value={saved[item.key]} />
                 ))}
                 <div style={{ paddingTop: 14 }}>
-                  <div style={{ fontSize: 11.5, fontWeight: 700, color: '#9AA1AE', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Bio</div>
+                  <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Bio</div>
                   <p style={{ fontSize: 13.5, color: 'var(--text-muted)', lineHeight: 1.65 }}>{saved.bio || '—'}</p>
                 </div>
               </div>
@@ -351,7 +349,27 @@ export default function ProfilePage() {
 
             {isEditing ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {ACADEMIC_FIELDS.map(f => <FieldRow key={f.key} f={f} />)}
+                {ACADEMIC_FIELDS.map(f => {
+                  const FIcon = f.icon;
+                  return (
+                    <div key={f.key} className="form-group">
+                      <label htmlFor={`prof-${f.key}`} className="form-label">{f.label}</label>
+                      <div className="input-wrap">
+                        <span className="input-icon">
+                          <FIcon size={15} strokeWidth={1.8} color="var(--text-muted)" />
+                        </span>
+                        <input
+                          id={`prof-${f.key}`}
+                          type={f.type}
+                          className="auth-input"
+                          placeholder={f.placeholder}
+                          value={form[f.key] || ''}
+                          onChange={field(f.key)}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <div style={{ marginTop: 4 }}>

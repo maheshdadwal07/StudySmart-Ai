@@ -20,7 +20,7 @@ function RenameModal({ isOpen, currentName, onCancel, onConfirm, isLoading }) {
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-      <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', width: '400px', maxWidth: '90%' }}>
+      <div style={{ backgroundColor: 'var(--card)', padding: '24px', borderRadius: '12px', width: '400px', maxWidth: '90%' }}>
         <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '18px' }}>Rename Document</h3>
         <input 
           type="text" 
@@ -252,8 +252,8 @@ export default function UploadsPage() {
           <h1>Documents</h1>
           <p>Manage your uploaded files and storage.</p>
           {!loading && (
-            <div style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280', fontWeight: 500 }}>
-              Storage Used: <span style={{ color: '#111827' }}>{storageUsageStr}</span>
+            <div style={{ marginTop: '8px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>
+              Storage Used: <span style={{ color: 'var(--text)' }}>{storageUsageStr}</span>
             </div>
           )}
         </div>
@@ -268,9 +268,9 @@ export default function UploadsPage() {
           </button>
           
           {status === 'uploading' && <div style={{ fontSize: '12.5px', color: 'var(--text-muted)' }}>Uploading {fileName}...</div>}
-          {status === 'success' && <div style={{ fontSize: '12.5px', color: '#16A34A', fontWeight: 500 }}>{errorMessage || 'Upload complete'}</div>}
-          {status === 'error' && <div style={{ fontSize: '12.5px', color: '#EF4444', maxWidth: '250px', textAlign: 'right' }}>{errorMessage}</div>}
-          {actionMessage.text && <div style={{ fontSize: '12.5px', color: actionMessage.type === 'success' ? '#16A34A' : '#EF4444', fontWeight: 500 }}>{actionMessage.text}</div>}
+          {status === 'success' && <div style={{ fontSize: '12.5px', color: 'var(--success-text)', fontWeight: 500 }}>{errorMessage || 'Upload complete'}</div>}
+          {status === 'error' && <div style={{ fontSize: '12.5px', color: 'var(--error-text)', maxWidth: '250px', textAlign: 'right' }}>{errorMessage}</div>}
+          {actionMessage.text && <div style={{ fontSize: '12.5px', color: actionMessage.type === 'success' ? 'var(--success-text)' : 'var(--error-text)', fontWeight: 500 }}>{actionMessage.text}</div>}
         </div>
       </div>
 
@@ -296,8 +296,8 @@ export default function UploadsPage() {
               ) : documents.length === 0 ? (
                 <tr>
                   <td colSpan="5" style={{ padding: '60px 40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-                    <div style={{ marginBottom: '16px' }}><FileText size={48} color="#9ca3af" style={{ margin: '0 auto' }} /></div>
-                    <div style={{ fontSize: '16px', color: '#111827', fontWeight: 500, marginBottom: '8px' }}>No documents uploaded yet.</div>
+                    <div style={{ marginBottom: '16px' }}><FileText size={48} color="var(--text-muted)" style={{ margin: '0 auto' }} /></div>
+                    <div style={{ fontSize: '16px', color: 'var(--text)', fontWeight: 500, marginBottom: '8px' }}>No documents uploaded yet.</div>
                     <p style={{ marginBottom: '24px', fontSize: '14px' }}>Upload your first document to start generating study materials.</p>
                     <Button onClick={handleUploadClick} variant="primary">
                       <Upload size={16} /> Upload Document
@@ -315,7 +315,7 @@ export default function UploadsPage() {
                     <tr key={item._id} style={{ borderBottom: '1px solid var(--border)' }}>
                       <td style={{ padding: '16px', fontWeight: 500, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(79,70,229,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <FileText size={14} color="#4F46E5" />
+                          <FileText size={14} color="var(--primary)" />
                         </div>
                         {item.filename}
                       </td>
@@ -323,8 +323,8 @@ export default function UploadsPage() {
                       <td style={{ padding: '16px' }}>
                         <span style={{
                           fontSize: 11.5, fontWeight: 600, padding: '4px 10px', borderRadius: 999,
-                          background: item.status === 'Processed' ? 'rgba(34,197,94,0.1)' : item.status === 'Processing' ? 'rgba(245,158,11,0.1)' : item.status === 'Failed' ? 'rgba(239,68,68,0.1)' : 'rgba(79,70,229,0.1)',
-                          color: item.status === 'Processed' ? '#16A34A' : item.status === 'Processing' ? '#F59E0B' : item.status === 'Failed' ? '#EF4444' : '#4F46E5'
+                          background: item.status === 'Processed' ? 'var(--success-bg)' : item.status === 'Processing' ? 'var(--warning-bg)' : item.status === 'Failed' ? 'var(--error-bg)' : 'var(--info-bg)',
+                          color: item.status === 'Processed' ? 'var(--success-text)' : item.status === 'Processing' ? 'var(--warning-text)' : item.status === 'Failed' ? 'var(--error-text)' : 'var(--info-text)'
                         }}>
                           {item.status}
                         </span>
@@ -332,24 +332,24 @@ export default function UploadsPage() {
                       <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{dateStr}</td>
                       <td style={{ padding: '16px', display: 'flex', gap: 16, justifyContent: 'flex-end', alignItems: 'center' }}>
                         {item.status === 'Processed' && (
-                          <button onClick={() => handlePreview(item._id)} title="Preview Document" aria-label="Preview Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4b5563', display: 'flex', alignItems: 'center' }}>
+                          <button onClick={() => handlePreview(item._id)} title="Preview Document" aria-label="Preview Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
                             <Eye size={18} />
                           </button>
                         )}
                         {(item.status === 'Pending' || item.status === 'Failed') && (
-                          <button onClick={() => handleProcess(item._id)} title={item.status === 'Failed' ? "Retry Processing" : "Process Document"} aria-label={item.status === 'Failed' ? "Retry Processing" : "Process Document"} style={{ background: 'none', border: 'none', cursor: 'pointer', color: item.status === 'Failed' ? '#F59E0B' : '#4F46E5', display: 'flex', alignItems: 'center' }}>
+                          <button onClick={() => handleProcess(item._id)} title={item.status === 'Failed' ? "Retry Processing" : "Process Document"} aria-label={item.status === 'Failed' ? "Retry Processing" : "Process Document"} style={{ background: 'none', border: 'none', cursor: 'pointer', color: item.status === 'Failed' ? 'var(--warning-text)' : 'var(--primary)', display: 'flex', alignItems: 'center' }}>
                             <Play size={18} />
                           </button>
                         )}
                         {item.status === 'Processing' && (
-                          <span style={{ fontSize: 12, color: '#F59E0B', fontWeight: 500, display: 'flex', alignItems: 'center' }}>
+                          <span style={{ fontSize: 12, color: 'var(--warning-text)', fontWeight: 500, display: 'flex', alignItems: 'center' }}>
                             Processing...
                           </span>
                         )}
-                        <button onClick={() => confirmRename(item)} title="Rename Document" aria-label="Rename Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4b5563', display: 'flex', alignItems: 'center' }}>
+                        <button onClick={() => confirmRename(item)} title="Rename Document" aria-label="Rename Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => confirmDelete(item._id)} title="Delete Document" aria-label="Delete Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', display: 'flex', alignItems: 'center' }}>
+                        <button onClick={() => confirmDelete(item._id)} title="Delete Document" aria-label="Delete Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error-text)', display: 'flex', alignItems: 'center' }}>
                           <Trash2 size={18} />
                         </button>
                       </td>

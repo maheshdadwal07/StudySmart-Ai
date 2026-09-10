@@ -233,18 +233,18 @@ export default function StudyMode() {
               </Button>
             </div>
 
-            {uploadError && <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }}>{uploadError}</div>}
+            {uploadError && <div style={{ color: 'var(--error-text)', marginBottom: '16px', fontSize: '14px' }}>{uploadError}</div>}
             
             {appState === 'loading_docs' ? (
               <div style={{ textAlign: 'center', padding: '40px' }}>
-                <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+                <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
                 <p>Loading documents...</p>
               </div>
             ) : documents.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px dashed #d1d5db' }}>
-                <FileText size={48} color="#9ca3af" style={{ margin: '0 auto 16px' }} />
-                <h3 style={{ fontSize: '18px', marginBottom: '8px', color: '#374151' }}>No documents available</h3>
-                <p style={{ color: '#6b7280', marginBottom: '24px' }}>Upload a document to start studying.</p>
+              <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'var(--surface-muted)', borderRadius: '12px', border: '1px dashed var(--border)' }}>
+                <FileText size={48} color="var(--text-muted)" style={{ margin: '0 auto 16px' }} />
+                <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text)' }}>No documents available</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Upload a document to start studying.</p>
                 <Button onClick={handleUploadClick}>Upload Document</Button>
               </div>
             ) : (
@@ -255,8 +255,8 @@ export default function StudyMode() {
                     onClick={() => selectDocument(doc._id)}
                     style={{ 
                       padding: '16px 20px', 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb', 
+                      backgroundColor: 'var(--card)', 
+                      border: '1px solid var(--border)', 
                       borderRadius: '12px',
                       cursor: 'pointer',
                       display: 'flex',
@@ -265,15 +265,15 @@ export default function StudyMode() {
                       transition: 'all 0.2s ease',
                       boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                     }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = '#4f46e5'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = '#e5e7eb'}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
                   >
                     <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(79,70,229,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <FileText size={20} color="#4F46E5" />
+                      <FileText size={20} color="var(--primary)" />
                     </div>
                     <div>
-                      <div style={{ fontWeight: 600, color: '#111827', fontSize: '15px' }}>{doc.filename}</div>
-                      <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>
+                      <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: '15px' }}>{doc.filename}</div>
+                      <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
                         {new Date(doc.created_at).toLocaleDateString()}
                       </div>
                     </div>
@@ -287,7 +287,7 @@ export default function StudyMode() {
         {/* Loading Session State */}
         {appState === 'loading_session' && (
           <div style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
             <p>Initializing AI Study Session...</p>
           </div>
         )}
@@ -295,7 +295,7 @@ export default function StudyMode() {
         {/* Generating State */}
         {appState === 'generating' && (
           <div style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
             <h3>AI is reading your document...</h3>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>This usually takes about 10-30 seconds depending on document length.</p>
           </div>
@@ -304,9 +304,9 @@ export default function StudyMode() {
         {/* Error State */}
         {appState === 'error' && (
           <div className="error-state" style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <AlertCircle size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ color: '#ef4444', fontSize: '20px' }}>Generation Failed</h3>
-            <p style={{ marginTop: '8px', color: '#4b5563' }}>{errorMsg || 'An unknown error occurred.'}</p>
+            <AlertCircle size={48} color="var(--error-text)" style={{ margin: '0 auto 16px' }} />
+            <h3 style={{ color: 'var(--error-text)', fontSize: '20px' }}>Generation Failed</h3>
+            <p style={{ marginTop: '8px', color: 'var(--text-muted)' }}>{errorMsg || 'An unknown error occurred.'}</p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px' }}>
               <Button variant="secondary" onClick={() => setSearchParams({})}>Go Back</Button>
               <Button onClick={initializeSession}>Try Again</Button>
@@ -318,24 +318,24 @@ export default function StudyMode() {
         {appState === 'success' && session?.result && (
           <div className="study-content" style={{ maxWidth: '800px', margin: '0 auto' }}>
             {session.cached && (
-              <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: '#f0fdf4', color: '#166534', borderRadius: '8px', fontSize: '14px', border: '1px solid #bbf7d0' }}>
+              <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: 'var(--success-bg)', color: 'var(--success-text)', borderRadius: '8px', fontSize: '14px', border: '1px solid var(--success-border)' }}>
                 Loaded instantly from previously saved session.
               </div>
             )}
             
             {session.result.summary && (
               <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '16px', color: '#111827' }}>Summary</h2>
-                <p style={{ lineHeight: '1.7', fontSize: '16px', color: '#374151' }}>{session.result.summary}</p>
+                <h2 style={{ fontSize: '24px', marginBottom: '16px', color: 'var(--text)' }}>Summary</h2>
+                <p style={{ lineHeight: '1.7', fontSize: '16px', color: 'var(--text)' }}>{session.result.summary}</p>
               </section>
             )}
             
             {session.result.key_points?.length > 0 && (
               <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#111827' }}>Key Points</h2>
+                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Key Points</h2>
                 <ul style={{ paddingLeft: '24px' }}>
                   {session.result.key_points.map((point, i) => (
-                    <li key={i} style={{ marginBottom: '12px', lineHeight: '1.6', color: '#374151', fontSize: '15.5px' }}>{point}</li>
+                    <li key={i} style={{ marginBottom: '12px', lineHeight: '1.6', color: 'var(--text)', fontSize: '15.5px' }}>{point}</li>
                   ))}
                 </ul>
               </section>
@@ -343,10 +343,10 @@ export default function StudyMode() {
 
             {session.result.important_concepts?.length > 0 && (
               <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#111827' }}>Important Concepts</h2>
+                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Important Concepts</h2>
                 <ul style={{ paddingLeft: '24px' }}>
                   {session.result.important_concepts.map((concept, i) => (
-                    <li key={i} style={{ marginBottom: '12px', lineHeight: '1.6', color: '#374151', fontSize: '15.5px' }}>{concept}</li>
+                    <li key={i} style={{ marginBottom: '12px', lineHeight: '1.6', color: 'var(--text)', fontSize: '15.5px' }}>{concept}</li>
                   ))}
                 </ul>
               </section>
@@ -354,12 +354,12 @@ export default function StudyMode() {
             
             {session.result.definitions && Object.keys(session.result.definitions).length > 0 && (
               <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#111827' }}>Glossary</h2>
+                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Glossary</h2>
                 <div style={{ display: 'grid', gap: '12px' }}>
                   {Object.entries(session.result.definitions).map(([term, def], i) => (
-                    <div key={i} style={{ padding: '16px', backgroundColor: '#f9fafb', borderRadius: '10px', border: '1px solid #e5e7eb' }}>
-                      <strong style={{ display: 'block', marginBottom: '6px', color: '#111827', fontSize: '15px' }}>{term}</strong>
-                      <span style={{ color: '#4b5563', lineHeight: '1.5', fontSize: '14.5px' }}>{def}</span>
+                    <div key={i} style={{ padding: '16px', backgroundColor: 'var(--surface-muted)', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                      <strong style={{ display: 'block', marginBottom: '6px', color: 'var(--text)', fontSize: '15px' }}>{term}</strong>
+                      <span style={{ color: 'var(--text-muted)', lineHeight: '1.5', fontSize: '14.5px' }}>{def}</span>
                     </div>
                   ))}
                 </div>
@@ -368,8 +368,8 @@ export default function StudyMode() {
             
             {session.result.revision_notes && (
               <section style={{ marginBottom: '40px' }}>
-                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#111827' }}>Revision Notes</h2>
-                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: '#374151', padding: '20px', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                <h2 style={{ fontSize: '20px', marginBottom: '16px', color: 'var(--text)' }}>Revision Notes</h2>
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7', color: 'var(--text)', padding: '20px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   {session.result.revision_notes}
                 </div>
               </section>

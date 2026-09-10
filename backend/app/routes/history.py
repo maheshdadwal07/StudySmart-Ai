@@ -106,7 +106,7 @@ async def get_history(
         { "$limit": limit + 1 }
     ]
     
-    cursor = db.study_sessions.aggregate(pipeline)
+    cursor = await db.study_sessions.aggregate(pipeline)
     raw_items = await cursor.to_list(length=limit + 1)
     
     items = []

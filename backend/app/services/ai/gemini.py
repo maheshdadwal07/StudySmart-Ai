@@ -51,6 +51,22 @@ DOCUMENT_CONTENT:
 """
         return prompt
 
+    def _get_clean_schema(self, pydantic_model: Type[BaseModel]) -> Dict[str, Any]:
+        schema = pydantic_model.model_json_schema()
+        
+        def strip_additional_properties(d):
+            if isinstance(d, dict):
+                if "additionalProperties" in d:
+                    del d["additionalProperties"]
+                for k, v in d.items():
+                    strip_additional_properties(v)
+            elif isinstance(d, list):
+                for item in d:
+                    strip_additional_properties(item)
+                    
+        strip_additional_properties(schema)
+        return schema
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -60,12 +76,13 @@ DOCUMENT_CONTENT:
     def _call_gemini_api(self, prompt: str, response_schema: Type[BaseModel]) -> BaseModel:
         # Wrap the blocking API call, applying retry logic natively
         try:
+            clean_schema = self._get_clean_schema(response_schema)
             response = self.client.models.generate_content(
                 model=self.model_name,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-                    response_schema=response_schema,
+                    response_schema=clean_schema,
                     temperature=0.2, # Keep it deterministic for educational content
                 ),
             )

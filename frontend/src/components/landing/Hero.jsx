@@ -49,7 +49,7 @@ const PIPELINE_NODES = [
 
 export default function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const pipelineRef = useReveal();
+  const { ref: pipelineRef, isIn: isPipelineIn } = useReveal();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -84,7 +84,7 @@ export default function Hero() {
       </div>
 
       <div className="wrap">
-        <div className="pipeline reveal" ref={pipelineRef}>
+        <div className={`pipeline reveal ${isPipelineIn ? 'in' : ''}`} ref={pipelineRef}>
           <div className="pipeline-row">
             {PIPELINE_NODES.map((node, i) => (
               <React.Fragment key={node.label}>

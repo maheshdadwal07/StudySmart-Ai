@@ -107,7 +107,7 @@
   left: 3px;
   top: 3px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--card);
   box-shadow: 0 1px 3px rgba(0,0,0,0.18);
   transition: transform .2s ease;
 }
@@ -134,7 +134,7 @@
 }
 
 .appearance-card:hover:not(.active) {
-  border-color: #d0d4dc;
+  border-color: var(--text-muted);
 }
 
 .appearance-card.active {
@@ -167,7 +167,7 @@
 .danger-zone h4 {
   font-size: 14px;
   font-weight: 700;
-  color: #EF4444;
+  color: var(--error-text);
   margin: 0 0 6px;
 }
 
@@ -178,9 +178,9 @@
 }
 
 .btn-danger {
-  background: #fff;
-  color: #EF4444;
-  border: 1.5px solid rgba(239,68,68,0.35);
+  background: var(--card);
+  color: var(--error-text);
+  border: 1.5px solid var(--error-border);
   border-radius: 12px;
   padding: 9px 18px;
   font-size: 13.5px;

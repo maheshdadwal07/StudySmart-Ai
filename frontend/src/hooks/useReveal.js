@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function useReveal() {
   const ref = useRef(null);
+  const [isIn, setIsIn] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
@@ -10,7 +11,7 @@ export function useReveal() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.classList.add('in');
+          setIsIn(true);
           observer.unobserve(el);
         }
       },
@@ -24,5 +25,5 @@ export function useReveal() {
     };
   }, []);
 
-  return ref;
+  return { ref, isIn };
 }

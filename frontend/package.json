@@ -13,6 +13,7 @@
     "axios": "^1.6.2",
     "framer-motion": "^10.16.5",
     "lucide-react": "^1.28.0",
+    "puppeteer": "^25.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",

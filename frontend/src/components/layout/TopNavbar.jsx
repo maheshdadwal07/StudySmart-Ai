@@ -49,10 +49,10 @@ export default function TopNavbar() {
   };
 
   const getNotifIcon = (type) => {
-    if (type === 'document') return <FileText size={16} className="text-blue-500" />;
-    if (type === 'study') return <Play size={16} className="text-green-500" />;
-    if (type === 'quiz') return <HelpCircle size={16} className="text-purple-500" />;
-    return <Bell size={16} className="text-gray-500" />;
+    if (type === 'document') return <FileText size={16} style={{ color: 'var(--info-text)' }} />;
+    if (type === 'study') return <Play size={16} style={{ color: 'var(--success-text)' }} />;
+    if (type === 'quiz') return <HelpCircle size={16} style={{ color: 'var(--primary)' }} />;
+    return <Bell size={16} style={{ color: 'var(--text-muted)' }} />;
   };
 
   const formatDate = (dateString) => {
@@ -77,38 +77,41 @@ export default function TopNavbar() {
       <div className="topnav-right">
         {/* Notifications Dropdown */}
         <div className="relative" ref={notifRef}>
-          <button className="icon-btn" aria-label="Notifications" onClick={handleNotifClick}>
-            <Bell size={18} stroke="#374151" strokeWidth={1.7} />
+          <button className="icon-btn" aria-label="Notifications" onClick={handleNotifClick} style={{ color: 'var(--text)' }}>
+            <Bell size={18} stroke="currentColor" strokeWidth={1.7} />
             {notifications.length > 0 && <span className="dot"></span>}
           </button>
           
           {showNotifications && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden" style={{ top: '48px' }}>
-              <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
-                <h3 className="font-semibold text-gray-800 text-sm">Notifications</h3>
+            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl shadow-lg z-50 overflow-hidden" style={{ top: '48px', backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+              <div className="px-4 py-3 flex justify-between items-center" style={{ borderBottom: '1px solid var(--border)' }}>
+                <h3 className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Notifications</h3>
               </div>
               <div className="max-h-80 overflow-y-auto">
                 {loadingNotifications ? (
-                  <div className="p-6 text-center text-gray-400 text-sm">Loading...</div>
+                  <div className="p-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</div>
                 ) : notifications.length === 0 ? (
-                  <div className="p-6 text-center text-gray-400 text-sm">No new notifications</div>
+                  <div className="p-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No new notifications</div>
                 ) : (
                   notifications.map((notif) => (
                     <div 
                       key={notif.id} 
-                      className="px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer flex gap-3 items-start"
+                      className="px-4 py-3 cursor-pointer flex gap-3 items-start notif-item"
+                      style={{ borderBottom: '1px solid var(--border)', transition: 'background-color 0.2s' }}
                       onClick={() => {
                         setShowNotifications(false);
                         navigate(notif.url);
                       }}
+                      onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
-                      <div className="mt-1 p-2 rounded-full bg-gray-100 flex-shrink-0">
+                      <div className="mt-1 p-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--surface-muted)' }}>
                         {getNotifIcon(notif.type)}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-800">{notif.title}</div>
-                        <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">{notif.description}</div>
-                        <div className="text-[10px] text-gray-400 mt-1">{formatDate(notif.timestamp)}</div>
+                        <div className="text-sm font-medium" style={{ color: 'var(--text)' }}>{notif.title}</div>
+                        <div className="text-xs mt-0.5 line-clamp-1" style={{ color: 'var(--text-muted)' }}>{notif.description}</div>
+                        <div className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>{formatDate(notif.timestamp)}</div>
                       </div>
                     </div>
                   ))
@@ -126,27 +129,36 @@ export default function TopNavbar() {
           </div>
           
           {showProfile && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden py-1" style={{ top: '48px' }}>
-              <div className="px-4 py-2 mb-1 border-b border-gray-100">
-                <div className="text-sm font-semibold text-gray-800 truncate">{user?.name || 'User'}</div>
-                <div className="text-xs text-gray-500 truncate">{user?.email || ''}</div>
+            <div className="absolute right-0 top-full mt-2 w-48 rounded-xl shadow-lg z-50 overflow-hidden py-1 profile-dropdown" style={{ top: '48px', backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+              <div className="px-4 py-2 mb-1" style={{ borderBottom: '1px solid var(--border)' }}>
+                <div className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{user?.name || 'User'}</div>
+                <div className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user?.email || ''}</div>
               </div>
               <button 
                 onClick={() => { setShowProfile(false); navigate('/profile'); }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 profile-dropdown-item"
+                style={{ color: 'var(--text)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <User size={14} /> Profile
               </button>
               <button 
                 onClick={() => { setShowProfile(false); navigate('/settings'); }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 profile-dropdown-item"
+                style={{ color: 'var(--text)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--surface-hover)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <Settings size={14} /> Settings
               </button>
-              <div className="border-t border-gray-100 my-1"></div>
+              <div className="my-1" style={{ borderTop: '1px solid var(--border)' }}></div>
               <button 
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                className="w-full text-left px-4 py-2 text-sm flex items-center gap-2 font-medium profile-dropdown-item"
+                style={{ color: 'var(--error-text)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--error-bg)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
               >
                 <LogOut size={14} /> Logout
               </button>

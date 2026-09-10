@@ -261,20 +261,20 @@ export default function QuestionMode() {
             </div>
 
             {/* Quiz Configuration Panel */}
-            <div style={{ padding: '20px', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', marginBottom: '32px' }}>
+            <div style={{ padding: '20px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', marginBottom: '32px' }}>
               <h3 style={{ fontSize: '16px', marginBottom: '16px' }}>Quiz Settings</h3>
               <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: '#4b5563' }}>Questions</label>
-                  <select value={questionCount} onChange={(e) => setQuestionCount(Number(e.target.value))} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db' }}>
+                  <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-muted)' }}>Questions</label>
+                  <select value={questionCount} onChange={(e) => setQuestionCount(Number(e.target.value))} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text)' }}>
                     <option value={5}>5 Questions</option>
                     <option value={10}>10 Questions</option>
                     <option value={15}>15 Questions</option>
                   </select>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: '#4b5563' }}>Difficulty</label>
-                  <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid #d1d5db' }}>
+                  <label style={{ display: 'block', fontSize: '14px', marginBottom: '8px', color: 'var(--text-muted)' }}>Difficulty</label>
+                  <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)} style={{ padding: '8px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text)' }}>
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
                     <option value="hard">Hard</option>
@@ -283,23 +283,23 @@ export default function QuestionMode() {
               </div>
             </div>
 
-            {uploadError && <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }}>{uploadError}</div>}
+            {uploadError && <div style={{ color: 'var(--error-text)', marginBottom: '16px', fontSize: '14px' }}>{uploadError}</div>}
             
             {appState === 'loading_docs' ? (
               <div style={{ textAlign: 'center', padding: '40px' }}>
-                <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+                <Loader size={32} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
                 <p>Loading documents...</p>
               </div>
             ) : documents.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', backgroundColor: '#f9fafb', borderRadius: '12px', border: '1px dashed #d1d5db' }}>
-                <FileText size={48} color="#9ca3af" style={{ margin: '0 auto 16px' }} />
-                <h3 style={{ fontSize: '18px', marginBottom: '8px', color: '#374151' }}>No documents available</h3>
-                <p style={{ color: '#6b7280', marginBottom: '24px' }}>Upload a document to generate a quiz.</p>
+              <div style={{ textAlign: 'center', padding: '60px', backgroundColor: 'var(--surface-muted)', borderRadius: '12px', border: '1px dashed var(--border)' }}>
+                <FileText size={48} color="var(--text-muted)" style={{ margin: '0 auto 16px' }} />
+                <h3 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text)' }}>No documents available</h3>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '24px' }}>Upload a document to generate a quiz.</p>
                 <Button onClick={handleUploadClick}>Upload Document</Button>
               </div>
             ) : (
               <div>
-                <h3 style={{ fontSize: '16px', marginBottom: '16px', color: '#374151' }}>Select a document</h3>
+                <h3 style={{ fontSize: '16px', marginBottom: '16px', color: 'var(--text)' }}>Select a document</h3>
                 <div style={{ display: 'grid', gap: '12px' }}>
                   {documents.filter(d => d.status === 'Processed').map(doc => (
                     <div 
@@ -307,8 +307,8 @@ export default function QuestionMode() {
                       onClick={() => selectDocument(doc._id)}
                       style={{ 
                         padding: '16px 20px', 
-                        backgroundColor: '#fff', 
-                        border: '1px solid #e5e7eb', 
+                        backgroundColor: 'var(--card)', 
+                        border: '1px solid var(--border)', 
                         borderRadius: '12px',
                         cursor: 'pointer',
                         display: 'flex',
@@ -317,15 +317,15 @@ export default function QuestionMode() {
                         transition: 'all 0.2s ease',
                         boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
                       }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = '#4f46e5'}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = '#e5e7eb'}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--primary)'}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
                     >
                       <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(79,70,229,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <FileText size={20} color="#4F46E5" />
+                        <FileText size={20} color="var(--primary)" />
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, color: '#111827', fontSize: '15px' }}>{doc.filename}</div>
-                        <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text)', fontSize: '15px' }}>{doc.filename}</div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
                           {new Date(doc.created_at).toLocaleDateString()}
                         </div>
                       </div>
@@ -340,7 +340,7 @@ export default function QuestionMode() {
         {/* Loading Session State */}
         {appState === 'loading_session' && (
           <div style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
             <p>Initializing AI Quiz Session...</p>
           </div>
         )}
@@ -348,7 +348,7 @@ export default function QuestionMode() {
         {/* Generating State */}
         {appState === 'generating' && (
           <div style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: '#4f46e5' }} />
+            <Loader size={40} className="spinning" style={{ margin: '0 auto 16px', color: 'var(--primary)' }} />
             <h3>AI is generating your questions...</h3>
             <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>This usually takes about 10-30 seconds.</p>
           </div>
@@ -357,9 +357,9 @@ export default function QuestionMode() {
         {/* Error State */}
         {appState === 'error' && (
           <div className="error-state" style={{ textAlign: 'center', marginTop: '10vh' }}>
-            <AlertCircle size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ color: '#ef4444', fontSize: '20px' }}>Generation Failed</h3>
-            <p style={{ marginTop: '8px', color: '#4b5563' }}>{errorMsg || 'An unknown error occurred.'}</p>
+            <AlertCircle size={48} color="var(--error-text)" style={{ margin: '0 auto 16px' }} />
+            <h3 style={{ color: 'var(--error-text)', fontSize: '20px' }}>Generation Failed</h3>
+            <p style={{ marginTop: '8px', color: 'var(--text-muted)' }}>{errorMsg || 'An unknown error occurred.'}</p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '24px' }}>
               <Button variant="secondary" onClick={() => {
                 setSearchParams({});
@@ -374,7 +374,7 @@ export default function QuestionMode() {
         {appState === 'success' && session?.result?.questions && (
           <div className="quiz-content" style={{ maxWidth: '800px', margin: '0 auto' }}>
             {session.cached && (
-              <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: '#f0fdf4', color: '#166534', borderRadius: '8px', fontSize: '14px', border: '1px solid #bbf7d0' }}>
+              <div style={{ marginBottom: '24px', padding: '12px 16px', backgroundColor: 'var(--success-bg)', color: 'var(--success-text)', borderRadius: '8px', fontSize: '14px', border: '1px solid var(--success-border)' }}>
                 Loaded instantly from previously saved quiz.
               </div>
             )}
@@ -386,13 +386,13 @@ export default function QuestionMode() {
                 const isCorrect = selectedOption === q.correct_answer_id;
 
                 return (
-                  <div key={qIndex} style={{ padding: '24px', backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+                  <div key={qIndex} style={{ padding: '24px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px' }}>
                     <div style={{ display: 'flex', gap: '16px' }}>
-                      <div style={{ flexShrink: 0, width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#4b5563' }}>
+                      <div style={{ flexShrink: 0, width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: 'var(--text-muted)' }}>
                         {qIndex + 1}
                       </div>
                       <div style={{ flexGrow: 1 }}>
-                        <h3 style={{ fontSize: '18px', color: '#111827', marginBottom: '20px', lineHeight: '1.5' }}>
+                        <h3 style={{ fontSize: '18px', color: 'var(--text)', marginBottom: '20px', lineHeight: '1.5' }}>
                           {q.question_text}
                         </h3>
                         
@@ -401,24 +401,25 @@ export default function QuestionMode() {
                             const isSelected = selectedOption === opt.id;
                             let optStyle = {
                               padding: '12px 16px',
-                              border: '1px solid #d1d5db',
+                              border: '1px solid var(--border)',
                               borderRadius: '8px',
                               cursor: isSubmitted ? 'default' : 'pointer',
                               display: 'flex',
                               alignItems: 'center',
                               gap: '12px',
                               transition: 'all 0.2s ease',
-                              backgroundColor: isSelected ? '#f0f4ff' : '#fff',
-                              borderColor: isSelected ? '#4f46e5' : '#d1d5db',
+                              backgroundColor: isSelected ? 'var(--info-bg)' : 'var(--card)',
+                              borderColor: isSelected ? 'var(--primary)' : 'var(--border)',
+                              color: 'var(--text)'
                             };
 
                             if (isSubmitted) {
                               if (opt.id === q.correct_answer_id) {
-                                optStyle.backgroundColor = '#f0fdf4';
-                                optStyle.borderColor = '#22c55e';
+                                optStyle.backgroundColor = 'var(--success-bg)';
+                                optStyle.borderColor = 'var(--success-text)';
                               } else if (isSelected && opt.id !== q.correct_answer_id) {
-                                optStyle.backgroundColor = '#fef2f2';
-                                optStyle.borderColor = '#ef4444';
+                                optStyle.backgroundColor = 'var(--error-bg)';
+                                optStyle.borderColor = 'var(--error-text)';
                               } else {
                                 optStyle.opacity = 0.6;
                               }
@@ -432,13 +433,13 @@ export default function QuestionMode() {
                               >
                                 <div style={{ 
                                   width: '20px', height: '20px', borderRadius: '50%', border: '2px solid',
-                                  borderColor: isSubmitted ? (opt.id === q.correct_answer_id ? '#22c55e' : (isSelected ? '#ef4444' : '#d1d5db')) : (isSelected ? '#4f46e5' : '#d1d5db'),
-                                  backgroundColor: isSubmitted ? (opt.id === q.correct_answer_id ? '#22c55e' : (isSelected ? '#ef4444' : 'transparent')) : (isSelected ? '#4f46e5' : 'transparent'),
+                                  borderColor: isSubmitted ? (opt.id === q.correct_answer_id ? 'var(--success-text)' : (isSelected ? 'var(--error-text)' : 'var(--border)')) : (isSelected ? 'var(--primary)' : 'var(--border)'),
+                                  backgroundColor: isSubmitted ? (opt.id === q.correct_answer_id ? 'var(--success-text)' : (isSelected ? 'var(--error-text)' : 'transparent')) : (isSelected ? 'var(--primary)' : 'transparent'),
                                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                                 }}>
                                   {(isSelected || (isSubmitted && opt.id === q.correct_answer_id)) && <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fff' }} />}
                                 </div>
-                                <span style={{ color: '#374151', fontSize: '15px' }}>{opt.text}</span>
+                                <span style={{ color: 'inherit', fontSize: '15px' }}>{opt.text}</span>
                               </div>
                             );
                           })}
@@ -452,12 +453,12 @@ export default function QuestionMode() {
                             Submit Answer
                           </Button>
                         ) : (
-                          <div style={{ marginTop: '16px', padding: '16px', borderRadius: '8px', backgroundColor: isCorrect ? '#f0fdf4' : '#fef2f2', border: `1px solid ${isCorrect ? '#bbf7d0' : '#fecaca'}` }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: 600, color: isCorrect ? '#166534' : '#991b1b' }}>
+                          <div style={{ marginTop: '16px', padding: '16px', borderRadius: '8px', backgroundColor: isCorrect ? 'var(--success-bg)' : 'var(--error-bg)', border: `1px solid ${isCorrect ? 'var(--success-border)' : 'var(--error-border)'}` }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: 600, color: isCorrect ? 'var(--success-text)' : 'var(--error-text)' }}>
                               {isCorrect ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
                               {isCorrect ? 'Correct!' : 'Incorrect'}
                             </div>
-                            <p style={{ color: isCorrect ? '#15803d' : '#b91c1c', fontSize: '14.5px', lineHeight: '1.5' }}>
+                            <p style={{ color: isCorrect ? 'var(--success-text)' : 'var(--error-text)', fontSize: '14.5px', lineHeight: '1.5' }}>
                               {q.explanation}
                             </p>
                           </div>

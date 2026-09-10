@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel, Field
 from typing import Optional, Any, Dict
 from pymongo import ReturnDocument
+from bson import ObjectId
 
 from app.database import get_database
 from app.routes.auth import get_current_user
@@ -35,7 +36,12 @@ async def create_question_session(
     db = get_database()
     
     # 1. Load document and verify
-    document = await db.documents.find_one({"_id": request.document_id})
+    try:
+        doc_obj_id = ObjectId(request.document_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid document ID format.")
+        
+    document = await db.documents.find_one({"_id": doc_obj_id})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found.")
         

@@ -221,14 +221,14 @@ export default function SettingsPage() {
         borderRadius: 10,
         fontSize: 13.5,
         fontWeight: 600,
-        color: '#16a34a',
+        color: 'var(--success-text)',
         marginBottom: 20,
         display: 'flex',
         alignItems: 'center',
         gap: 8,
       }}>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-          <path d="M20 6L9 17l-5-5" stroke="#16a34a" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M20 6L9 17l-5-5" stroke="var(--success-text)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
         Changes saved successfully.
       </div>
@@ -246,7 +246,7 @@ export default function SettingsPage() {
             <label htmlFor="acc-name" className="form-label">Full Name</label>
             <div className="input-wrap">
               <span className="input-icon">
-                <User size={15} strokeWidth={1.8} color="#9AA1AE" />
+                <User size={15} strokeWidth={1.8} color="var(--text-muted)" />
               </span>
               <input
                 id="acc-name"
@@ -264,7 +264,7 @@ export default function SettingsPage() {
             <label htmlFor="acc-email" className="form-label">Email Address</label>
             <div className="input-wrap">
               <span className="input-icon">
-                <Mail size={15} strokeWidth={1.8} color="#9AA1AE" />
+                <Mail size={15} strokeWidth={1.8} color="var(--text-muted)" />
               </span>
               <input
                 id="acc-email"
@@ -282,7 +282,7 @@ export default function SettingsPage() {
             <label htmlFor="acc-phone" className="form-label">Phone Number</label>
             <div className="input-wrap">
               <span className="input-icon">
-                <Phone size={15} strokeWidth={1.8} color="#9AA1AE" />
+                <Phone size={15} strokeWidth={1.8} color="var(--text-muted)" />
               </span>
               <input
                 id="acc-phone"
@@ -299,7 +299,7 @@ export default function SettingsPage() {
             <label htmlFor="acc-location" className="form-label">Location</label>
             <div className="input-wrap">
               <span className="input-icon">
-                <MapPin size={15} strokeWidth={1.8} color="#9AA1AE" />
+                <MapPin size={15} strokeWidth={1.8} color="var(--text-muted)" />
               </span>
               <input
                 id="acc-location"
@@ -413,7 +413,7 @@ export default function SettingsPage() {
       <form onSubmit={savePassword} style={{ maxWidth: 440 }}>
         <SavedBanner show={pwSaved} />
         {pwError && (
-          <div style={{ padding: '10px 14px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', borderRadius: 10, fontSize: 13, color: '#EF4444', fontWeight: 500, marginBottom: 20 }}>
+          <div style={{ padding: '10px 14px', background: 'var(--error-bg)', border: '1px solid var(--error-border)', borderRadius: 10, fontSize: 13, color: 'var(--error-text)', fontWeight: 500, marginBottom: 20 }}>
             {pwError}
           </div>
         )}
@@ -424,7 +424,7 @@ export default function SettingsPage() {
               <label htmlFor={`pw-${field.key}`} className="form-label">{field.label}</label>
               <div className="input-wrap">
                 <span className="input-icon">
-                  <Lock size={15} strokeWidth={1.8} color="#9AA1AE" />
+                  <Lock size={15} strokeWidth={1.8} color="var(--text-muted)" />
                 </span>
                 <input
                   id={`pw-${field.key}`}
@@ -481,7 +481,7 @@ export default function SettingsPage() {
         {showDeleteModal && (
           <div className="modal-overlay">
             <div className="modal-content" style={{ maxWidth: 400 }}>
-              <h3 style={{ color: '#EF4444', marginBottom: 8, fontSize: 18 }}>Confirm Account Deletion</h3>
+              <h3 style={{ color: 'var(--error-text)', marginBottom: 8, fontSize: 18 }}>Confirm Account Deletion</h3>
               <p style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 20 }}>
                 This will permanently delete your account, documents, and all saved study sessions. Please enter your password to confirm.
               </p>
@@ -489,7 +489,7 @@ export default function SettingsPage() {
               <form onSubmit={handleDeleteAccount}>
                 <div className="input-wrap" style={{ marginBottom: 16 }}>
                   <span className="input-icon">
-                    <Lock size={15} strokeWidth={1.8} color="#9AA1AE" />
+                    <Lock size={15} strokeWidth={1.8} color="var(--text-muted)" />
                   </span>
                   <input
                     type="password"
@@ -502,7 +502,7 @@ export default function SettingsPage() {
                 </div>
                 
                 {deleteError && (
-                  <div style={{ color: '#EF4444', fontSize: 13, marginBottom: 16, fontWeight: 500 }}>
+                  <div style={{ color: 'var(--error-text)', fontSize: 13, marginBottom: 16, fontWeight: 500 }}>
                     {deleteError}
                   </div>
                 )}
