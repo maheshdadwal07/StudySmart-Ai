@@ -95,7 +95,7 @@ export default function HistoryPage() {
       </div>
 
       <div className="panel">
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="history-filter-row" style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
           
           <div style={{ display: 'flex', gap: '8px' }}>
             <button 
@@ -133,7 +133,7 @@ export default function HistoryPage() {
             </button>
           </div>
 
-          <div className="input-wrap" style={{ width: '100%', maxWidth: '300px', margin: 0 }}>
+          <div className="input-wrap history-search" style={{ width: '100%', maxWidth: '300px', margin: 0 }}>
             <span className="input-icon"><Search size={16} /></span>
             <input 
               type="text" 
@@ -182,7 +182,7 @@ export default function HistoryPage() {
                   <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
                     <th style={{ padding: '16px 20px', fontWeight: 600 }}>Session</th>
                     <th style={{ padding: '16px 20px', fontWeight: 600 }}>Type</th>
-                    <th style={{ padding: '16px 20px', fontWeight: 600 }}>Date</th>
+                    <th className="history-table-date" style={{ padding: '16px 20px', fontWeight: 600 }}>Date</th>
                     <th style={{ padding: '16px 20px', fontWeight: 600, width: '100px', textAlign: 'right' }}>Action</th>
                   </tr>
                 </thead>
@@ -215,11 +215,12 @@ export default function HistoryPage() {
                           {item.type}
                         </div>
                       </td>
-                      <td style={{ padding: '16px 20px', color: 'var(--text-muted)' }}>
+                      <td className="history-table-date" style={{ padding: '16px 20px', color: 'var(--text-muted)' }}>
                         {new Date(item.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                       </td>
                       <td style={{ padding: '16px 20px', textAlign: 'right' }}>
                         <Button 
+                          className="history-open-btn"
                           variant="secondary" 
                           onClick={() => handleOpenItem(item)}
                           style={{ padding: '6px 12px', fontSize: '13px' }}

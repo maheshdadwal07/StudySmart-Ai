@@ -153,7 +153,7 @@
 /* ============================================================
    BODY LAYOUT
    ============================================================ */
-.question-body { flex: 1; display: flex; min-height: 0; }
+.question-body { flex: 1; display: flex; min-height: 0; overflow-x: hidden; }
 
 /* ============================================================
    CONFIG PANEL (preserved + light refinement)
@@ -339,8 +339,8 @@
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 
-.doc-card-body { min-width: 0; }
-.doc-card-name { font-size: 14.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-card-body { min-width: 0; flex: 1; overflow: hidden; }
+.doc-card-name { font-size: 14.5px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .doc-card-date { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
 
 /* Empty state */
@@ -826,13 +826,22 @@
 }
 
 @media (max-width: 600px) {
-  .selector-container  { padding: 24px 16px 48px; }
-  .quiz-content-wrap   { padding: 24px 16px 48px; }
-  .qm-loading-card     { padding: 36px 24px; }
-  .qm-error-card       { padding: 36px 24px; }
-  .quiz-card           { padding: 20px 18px 18px; }
-  .opt-item            { padding: 13px 14px; }
-  .topbar              { padding: 0 14px; }
-  .doc-title           { max-width: 140px; }
+  .selector-container  { padding: 20px 14px 48px; }
+  .quiz-content-wrap   { padding: 20px 14px 48px; }
+  .qm-loading-card     { padding: 36px 20px; }
+  .qm-error-card       { padding: 36px 20px; }
+  .quiz-card           { padding: 18px 14px 16px; }
+  .opt-item            { padding: 12px 12px; }
+  .topbar              { padding: 0 12px; }
+  .doc-title           { max-width: 110px; font-size: 13px; }
   .quiz-settings-row   { flex-direction: column; }
+  .selector-header     { flex-direction: column; align-items: flex-start; }
+  .doc-card            { padding: 13px 14px; gap: 10px; }
+  .doc-card-icon       { width: 36px; height: 36px; border-radius: 9px; }
+  .quiz-title          { font-size: 18px; }
+  .q-text              { font-size: 14.5px; }
+  .q-num-badge         { width: 28px; height: 28px; font-size: 12px; }
+  .answer-feedback     { padding: 14px 15px; }
+  .feedback-header     { font-size: 13.5px; }
+  .feedback-text       { font-size: 13px; }
 }

@@ -83,7 +83,7 @@ export default function Dashboard() {
         onChange={handleFileChange} 
       />
       
-      <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="page-head">
         <div>
           <h1>Good morning, {firstName} 👋</h1>
           <p>Here's what's happening with your study material today.</p>

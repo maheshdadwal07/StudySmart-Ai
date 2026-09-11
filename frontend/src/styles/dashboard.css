@@ -482,3 +482,53 @@
   z-index: 39;
 }
 .overlay.show {display: block;}
+
+/* ---------- MOBILE-SPECIFIC FIXES ---------- */
+@media (max-width: 640px) {
+  /* Content area padding on small phones */
+  .content { padding: 16px; }
+  
+  /* page-head (used by UploadsPage, Dashboard, etc.) */
+  .page-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .page-head h1 { font-size: 22px; }
+
+  /* Panel padding reduction */
+  .panel { padding: 16px; border-radius: 14px; }
+
+  /* ---------- UPLOADS TABLE on mobile ---------- */
+  /* The table has overflowX: auto wrapping, so it scrolls.
+     Hide non-essential columns below 640px to reduce horizontal scroll. */
+  .uploads-table-date { display: none; }
+  .uploads-table-actions { white-space: nowrap; }
+  /* Reduce cell padding to fit filename + size + status + actions within ~390px */
+  .uploads-table td, .uploads-table th { padding: 10px 8px !important; font-size: 13px; }
+
+  /* ---------- HISTORY TABLE on mobile ---------- */
+  /* Hide Date column so table fits within 390px without horizontal scroll */
+  .history-table-date { display: none; }
+
+  /* Filter row stacks vertically */
+  .history-filter-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .history-filter-row .filter-btns { flex-wrap: wrap; }
+  .history-search { width: 100% !important; max-width: 100% !important; }
+
+  /* ---------- HISTORY table rows on mobile ---------- */
+  /* The "Open" button column is cramped; ensure rows don't collide */
+  .history-open-btn { padding: 5px 10px !important; font-size: 12px !important; }
+}
+
+/* ---------- 320px extreme mobile ---------- */
+@media (max-width: 380px) {
+  .content { padding: 12px; }
+  .panel { padding: 12px; }
+  .page-head h1 { font-size: 20px; }
+}
+

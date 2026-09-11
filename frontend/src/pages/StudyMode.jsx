@@ -254,7 +254,7 @@ export default function StudyMode() {
       </div>
 
       {/* ── WORKSPACE ── */}
-      <div className="workspace" style={{ overflowY: 'auto' }}>
+      <div className="workspace" style={{ overflowY: 'auto', overflowX: 'hidden' }}>
 
         {/* ── DOCUMENT SELECTOR ── */}
         {(appState === 'idle' || appState === 'loading_docs' || appState === 'selecting') && (

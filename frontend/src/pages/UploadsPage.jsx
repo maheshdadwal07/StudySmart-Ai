@@ -247,7 +247,7 @@ export default function UploadsPage() {
         accept=".pdf,.docx,.doc" 
         onChange={handleFileChange} 
       />
-      <div className="page-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="page-head">
         <div>
           <h1>Documents</h1>
           <p>Manage your uploaded files and storage.</p>
@@ -276,13 +276,13 @@ export default function UploadsPage() {
 
       <div className="panel">
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
+          <table className="uploads-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: 13.5 }}>
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--text-muted)' }}>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>File Name</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Size</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600 }}>Status</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600 }}>Date Uploaded</th>
+                <th className="uploads-table-date" style={{ padding: '12px 16px', fontWeight: 600 }}>Date Uploaded</th>
                 <th style={{ padding: '12px 16px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -329,7 +329,7 @@ export default function UploadsPage() {
                           {item.status}
                         </span>
                       </td>
-                      <td style={{ padding: '16px', color: 'var(--text-muted)' }}>{dateStr}</td>
+                      <td className="uploads-table-date" style={{ padding: '16px', color: 'var(--text-muted)' }}>{dateStr}</td>
                       <td style={{ padding: '16px', display: 'flex', gap: 16, justifyContent: 'flex-end', alignItems: 'center' }}>
                         {item.status === 'Processed' && (
                           <button onClick={() => handlePreview(item._id)} title="Preview Document" aria-label="Preview Document" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
