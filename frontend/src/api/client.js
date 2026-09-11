@@ -11,6 +11,8 @@ export function getAccessToken() {
 let isRefreshing = false;
 let refreshPromise = null;
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export async function apiFetch(url, options = {}) {
   const headers = new Headers(options.headers || {});
   
@@ -25,13 +27,16 @@ export async function apiFetch(url, options = {}) {
     credentials: options.credentials || 'include',
   };
 
-  let response = await fetch(url, fetchOptions);
+  const finalUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+
+  let response = await fetch(finalUrl, fetchOptions);
 
   // If 401 Unauthorized, and this wasn't an auth endpoint itself
   if (response.status === 401 && !url.includes('/api/auth/')) {
     if (!isRefreshing) {
       isRefreshing = true;
-      refreshPromise = fetch('/api/auth/refresh', {
+      const refreshUrl = `${API_BASE}/api/auth/refresh`;
+      refreshPromise = fetch(refreshUrl, {
         method: 'POST',
         credentials: 'include',
       }).then(async (refreshResponse) => {
@@ -57,7 +62,7 @@ export async function apiFetch(url, options = {}) {
       // Retry original request with new token
       headers.set('Authorization', `Bearer ${newAccessToken}`);
       fetchOptions.headers = headers;
-      response = await fetch(url, fetchOptions);
+      response = await fetch(finalUrl, fetchOptions);
     }
   }
 
