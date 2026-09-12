@@ -29,10 +29,9 @@ This document outlines the deployment configuration for StudySmart AI.
 - `CLOUDINARY_CLOUD_NAME`
 - `CLOUDINARY_API_KEY`
 - `CLOUDINARY_API_SECRET`
-- `EMAIL_HOST` (e.g., `smtp.gmail.com`)
-- `EMAIL_PORT` (e.g., `587`)
-- `EMAIL_USERNAME`
-- `EMAIL_PASSWORD`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL` (a verified Resend sender; use `onboarding@resend.dev` only for initial testing)
+- `EMAIL_FROM_NAME` (e.g., `StudySmart AI`)
 
 *(Note: Do not put real values in this document. Keep them secure in your hosting dashboard).*
 

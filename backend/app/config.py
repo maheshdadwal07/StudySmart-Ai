@@ -18,11 +18,8 @@ class Settings(BaseSettings):
     max_extracted_text_chars: int = 1000000
 
     # Email
-    email_host: str = ""
-    email_port: int = 587
-    email_username: str = ""
-    email_password: str = ""
-    email_from: str = "noreply@studysmart.ai"
+    resend_api_key: str = ""
+    resend_from_email: str = "onboarding@resend.dev"
     email_from_name: str = "StudySmart AI"
 
     # AI Configuration
