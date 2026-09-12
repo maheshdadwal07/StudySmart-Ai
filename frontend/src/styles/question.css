@@ -102,9 +102,9 @@
 }
 
 .back-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--card);
   display: flex;
@@ -180,9 +180,9 @@
   cursor: not-allowed;
 }
 .icon-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--card);
   display: flex;

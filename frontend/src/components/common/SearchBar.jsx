@@ -88,35 +88,35 @@ export default function SearchBar({ placeholder, className = "" }) {
 
       {showResults && query.trim() && (
         <div
-          className="search-results absolute left-0 top-full mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden"
+          className="search-results absolute left-0 top-full mt-2 w-full rounded-xl shadow-lg z-50 overflow-hidden"
           style={{ top: "42px" }}
         >
           {isSearching ? (
-            <div className="p-4 text-center text-sm text-gray-400">
+            <div className="search-result-empty p-4 text-center text-sm">
               Searching...
             </div>
           ) : !hasResults ? (
-            <div className="p-4 text-center text-sm text-gray-400">
+            <div className="search-result-empty p-4 text-center text-sm">
               No results found for "{query}"
             </div>
           ) : (
             <div className="max-h-80 overflow-y-auto py-2">
               {results.documents?.length > 0 && (
                 <div className="mb-2">
-                  <div className="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <div className="search-result-label px-4 py-1 text-xs font-bold uppercase tracking-wider">
                     Documents
                   </div>
                   {results.documents.map((doc) => (
                     <div
                       key={doc.id}
-                      className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                      className="search-result-item px-4 py-2 cursor-pointer flex items-center gap-2"
                       onClick={() => handleResultClick(doc)}
                     >
                       <FileText
                         size={14}
                         className="text-blue-500 flex-shrink-0"
                       />
-                      <span className="text-sm text-gray-700 truncate">
+                      <span className="search-result-title text-sm truncate">
                         {doc.title}
                       </span>
                     </div>
@@ -126,20 +126,20 @@ export default function SearchBar({ placeholder, className = "" }) {
 
               {results.study_materials?.length > 0 && (
                 <div className="mb-2">
-                  <div className="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <div className="search-result-label px-4 py-1 text-xs font-bold uppercase tracking-wider">
                     Study Notes
                   </div>
                   {results.study_materials.map((study) => (
                     <div
                       key={study.id}
-                      className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                      className="search-result-item px-4 py-2 cursor-pointer flex items-center gap-2"
                       onClick={() => handleResultClick(study)}
                     >
                       <Play
                         size={14}
                         className="text-green-500 flex-shrink-0"
                       />
-                      <span className="text-sm text-gray-700 truncate">
+                      <span className="search-result-title text-sm truncate">
                         {study.title}
                       </span>
                     </div>
@@ -149,20 +149,20 @@ export default function SearchBar({ placeholder, className = "" }) {
 
               {results.questions?.length > 0 && (
                 <div>
-                  <div className="px-4 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  <div className="search-result-label px-4 py-1 text-xs font-bold uppercase tracking-wider">
                     Questions
                   </div>
                   {results.questions.map((q) => (
                     <div
                       key={q.id}
-                      className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                      className="search-result-item px-4 py-2 cursor-pointer flex items-center gap-2"
                       onClick={() => handleResultClick(q)}
                     >
                       <HelpCircle
                         size={14}
                         className="text-purple-500 flex-shrink-0"
                       />
-                      <span className="text-sm text-gray-700 truncate">
+                      <span className="search-result-title text-sm truncate">
                         {q.title}
                       </span>
                     </div>

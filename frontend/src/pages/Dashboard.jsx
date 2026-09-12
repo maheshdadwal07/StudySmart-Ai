@@ -95,8 +95,8 @@ export default function Dashboard() {
           </Button>
           
           {status === 'uploading' && <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Uploading {fileName}...</div>}
-          {status === 'success' && <div style={{ fontSize: '13px', color: '#16A34A', fontWeight: 500 }}>{errorMessage || 'Upload complete'}</div>}
-          {status === 'error' && <div style={{ fontSize: '13px', color: '#EF4444' }}>{errorMessage}</div>}
+          {status === 'success' && <div style={{ fontSize: '13px', color: 'var(--success-text)', fontWeight: 500 }}>{errorMessage || 'Upload complete'}</div>}
+          {status === 'error' && <div style={{ fontSize: '13px', color: 'var(--error-text)' }}>{errorMessage}</div>}
         </div>
       </div>
 

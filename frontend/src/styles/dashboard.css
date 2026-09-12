@@ -89,7 +89,7 @@
   transition: stroke 0.15s;
 }
 .nav-item:hover {
-  background: var(--card);
+  background: var(--surface-hover);
   color: var(--text);
 }
 .nav-item:hover svg {
@@ -161,7 +161,22 @@
   min-width: 0;
 }
 .search-results {
+  background: var(--card);
+  border: 1px solid var(--border);
   max-width: calc(100vw - 24px);
+}
+.search-result-label,
+.search-result-empty {
+  color: var(--text-muted);
+}
+.search-result-item {
+  transition: background 0.15s ease;
+}
+.search-result-item:hover {
+  background: var(--surface-hover);
+}
+.search-result-title {
+  color: var(--text);
 }
 .notifications-dropdown {
   width: min(320px, calc(100vw - 24px));
@@ -238,7 +253,7 @@
   position: relative;
 }
 .icon-btn:hover {
-  background: var(--card);
+  background: var(--surface-hover);
 }
 .icon-btn .dot {
   position: absolute;
@@ -259,7 +274,7 @@
   cursor: pointer;
 }
 .topnav-profile:hover {
-  background: var(--card);
+  background: var(--surface-hover);
 }
 
 /* ---------- CONTENT ---------- */
@@ -374,6 +389,9 @@
   grid-template-columns: 1.55fr 1fr;
   gap: 20px;
   align-items: start;
+}
+.grid-2col > * {
+  min-width: 0;
 }
 
 .panel {
@@ -498,7 +516,7 @@
   transition: background 0.15s;
 }
 .doc-row:hover {
-  background: var(--card);
+  background: var(--surface-hover);
 }
 .doc-icon {
   width: 40px;
@@ -650,7 +668,7 @@
 }
 .quick-action:hover {
   border-color: var(--primary);
-  background: var(--card);
+  background: var(--surface-hover);
   box-shadow: var(--shadow-sm);
 }
 .quick-action .qi {

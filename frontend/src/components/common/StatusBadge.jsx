@@ -1,55 +1,68 @@
-import React from 'react';
-import { Loader2, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import React from "react";
+import { Loader2, CheckCircle2, Clock, XCircle } from "lucide-react";
 
-export default function StatusBadge({ status, className = '' }) {
+export default function StatusBadge({ status, className = "" }) {
   let config = {
-    bg: 'bg-gray-100',
-    text: 'text-gray-700',
-    border: 'border-gray-200',
+    style: {
+      backgroundColor: "var(--surface-hover)",
+      color: "var(--text-muted)",
+      borderColor: "var(--border)",
+    },
     icon: null,
-    label: status || 'Unknown'
+    label: status || "Unknown",
   };
 
   switch (status) {
-    case 'Pending':
-    case 'Queued':
+    case "Pending":
+    case "Queued":
       config = {
-        bg: 'bg-amber-50',
-        text: 'text-amber-700',
-        border: 'border-amber-200',
-        icon: <Clock size={12} className="mr-1.5" />
+        style: {
+          backgroundColor: "var(--warning-bg)",
+          color: "var(--warning-text)",
+          borderColor: "var(--warning-border)",
+        },
+        icon: <Clock size={12} className="mr-1.5" />,
       };
       break;
-    case 'Processing':
-    case 'Generating':
+    case "Processing":
+    case "Generating":
       config = {
-        bg: 'bg-blue-50',
-        text: 'text-blue-700',
-        border: 'border-blue-200',
-        icon: <Loader2 size={12} className="mr-1.5 spinning" />
+        style: {
+          backgroundColor: "var(--info-bg)",
+          color: "var(--info-text)",
+          borderColor: "var(--info-border)",
+        },
+        icon: <Loader2 size={12} className="mr-1.5 spinning" />,
       };
       break;
-    case 'Processed':
-    case 'Completed':
+    case "Processed":
+    case "Completed":
       config = {
-        bg: 'bg-emerald-50',
-        text: 'text-emerald-700',
-        border: 'border-emerald-200',
-        icon: <CheckCircle2 size={12} className="mr-1.5" />
+        style: {
+          backgroundColor: "var(--success-bg)",
+          color: "var(--success-text)",
+          borderColor: "var(--success-border)",
+        },
+        icon: <CheckCircle2 size={12} className="mr-1.5" />,
       };
       break;
-    case 'Failed':
+    case "Failed":
       config = {
-        bg: 'bg-red-50',
-        text: 'text-red-700',
-        border: 'border-red-200',
-        icon: <XCircle size={12} className="mr-1.5" />
+        style: {
+          backgroundColor: "var(--error-bg)",
+          color: "var(--error-text)",
+          borderColor: "var(--error-border)",
+        },
+        icon: <XCircle size={12} className="mr-1.5" />,
       };
       break;
   }
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${config.bg} ${config.text} ${config.border} ${className}`}>
+    <span
+      style={config.style}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${className}`}
+    >
       {config.icon}
       {config.label}
     </span>
