@@ -212,6 +212,9 @@
 }
 
 .doc-card {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 16px 18px;
   background: var(--card);
   border: 1.5px solid var(--border);
@@ -255,9 +258,8 @@
   font-size: 14.5px;
   font-weight: 600;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
   max-width: 100%;
 }
 

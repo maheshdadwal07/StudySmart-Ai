@@ -484,6 +484,7 @@ export default function UploadsPage() {
                       style={{ borderBottom: "1px solid var(--border)" }}
                     >
                       <td
+                        className="uploads-table-filename"
                         style={{
                           padding: "16px",
                           fontWeight: 500,
@@ -520,11 +521,15 @@ export default function UploadsPage() {
                         </div>
                       </td>
                       <td
+                        className="uploads-table-size"
                         style={{ padding: "16px", color: "var(--text-muted)" }}
                       >
                         {sizeStr}
                       </td>
-                      <td style={{ padding: "16px" }}>
+                      <td
+                        className="uploads-table-status"
+                        style={{ padding: "16px" }}
+                      >
                         <span
                           style={{
                             fontSize: 11.5,
@@ -553,7 +558,7 @@ export default function UploadsPage() {
                         </span>
                       </td>
                       <td
-                        className="uploads-table-date"
+                        className="uploads-table-date uploads-table-date-cell"
                         style={{ padding: "16px", color: "var(--text-muted)" }}
                       >
                         {dateStr}
