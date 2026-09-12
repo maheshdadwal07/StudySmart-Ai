@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import '../styles/landing.css'
 
 import Navbar from '../components/landing/Navbar'
@@ -27,9 +28,9 @@ export default function Landing() {
             <h2>Ready to study smarter?</h2>
             <p>Join thousands turning documents into notes and questions every day.</p>
             <div className="hero-ctas">
-              <a href="#" className="btn btn-secondary btn-lg" style={{ color: 'var(--primary)' }}>
+              <Link to="/signup" className="btn btn-secondary btn-lg" style={{ color: 'var(--primary)' }}>
                 Start Free Trial
-              </a>
+              </Link>
               <a href="#" className="btn btn-ghost btn-lg">
                 Watch Demo →
               </a>

@@ -12,6 +12,7 @@ let isRefreshing = false;
 let refreshPromise = null;
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
+const CLEAN_BASE = API_BASE.replace(/\/+$/, '');
 
 export async function apiFetch(url, options = {}) {
   const headers = new Headers(options.headers || {});
@@ -27,7 +28,7 @@ export async function apiFetch(url, options = {}) {
     credentials: options.credentials || 'include',
   };
 
-  const finalUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+  const finalUrl = url.startsWith('http') ? url : `${CLEAN_BASE}${url}`;
 
   let response = await fetch(finalUrl, fetchOptions);
 
@@ -35,7 +36,7 @@ export async function apiFetch(url, options = {}) {
   if (response.status === 401 && !url.includes('/api/auth/')) {
     if (!isRefreshing) {
       isRefreshing = true;
-      const refreshUrl = `${API_BASE}/api/auth/refresh`;
+      const refreshUrl = `${CLEAN_BASE}/api/auth/refresh`;
       refreshPromise = fetch(refreshUrl, {
         method: 'POST',
         credentials: 'include',

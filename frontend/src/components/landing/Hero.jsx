@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useReveal } from '../../hooks/useReveal';
 
 const PIPELINE_NODES = [
@@ -71,7 +72,7 @@ export default function Hero() {
           Upload PDFs, DOCX files, presentations, or job descriptions and instantly generate summaries, notes, interview questions, MCQs, and learning material.
         </p>
         <div className="hero-ctas">
-          <a href="#" className="btn btn-primary btn-lg">Start Free Trial</a>
+          <Link to="/signup" className="btn btn-primary btn-lg">Start Free Trial</Link>
           <a href="#" className="btn btn-secondary btn-lg">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="9" stroke="#111827" strokeWidth="1.6" />
