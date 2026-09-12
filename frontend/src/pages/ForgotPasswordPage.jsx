@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/forms/AuthLayout';
+import { apiFetch } from '../api/client';
 import '../styles/landing.css';
 import '../styles/auth.css';
 
@@ -34,7 +35,7 @@ export default function ForgotPasswordPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await apiFetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })

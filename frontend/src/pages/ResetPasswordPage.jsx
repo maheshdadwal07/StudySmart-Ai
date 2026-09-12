@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthLayout from '../components/forms/AuthLayout';
+import { apiFetch } from '../api/client';
 import '../styles/landing.css';
 import '../styles/auth.css';
 
@@ -52,7 +53,7 @@ export default function ResetPasswordPage() {
     setError('');
     
     try {
-      const res = await fetch('/api/auth/resend-password-reset', {
+      const res = await apiFetch('/api/auth/resend-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
@@ -97,7 +98,7 @@ export default function ResetPasswordPage() {
     setLoading(true);
     
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await apiFetch('/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
