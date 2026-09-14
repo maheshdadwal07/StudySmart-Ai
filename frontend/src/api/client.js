@@ -61,9 +61,14 @@ export async function apiFetch(url, options = {}) {
     const newAccessToken = await refreshPromise;
     if (newAccessToken) {
       // Retry original request with new token
-      headers.set('Authorization', `Bearer ${newAccessToken}`);
-      fetchOptions.headers = headers;
-      response = await fetch(finalUrl, fetchOptions);
+      const retryHeaders = new Headers(options.headers || {});
+      retryHeaders.set('Authorization', `Bearer ${newAccessToken}`);
+      const retryOptions = {
+        ...options,
+        headers: retryHeaders,
+        credentials: options.credentials || 'include',
+      };
+      response = await fetch(finalUrl, retryOptions);
     }
   }
 

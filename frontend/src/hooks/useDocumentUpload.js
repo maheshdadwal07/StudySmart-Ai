@@ -23,11 +23,11 @@ export function useDocumentUpload(onSuccess) {
       clearTimeout(timerRef.current);
     }
 
-    const allowedExtensions = ['pdf', 'docx'];
+    const allowedExtensions = ['pdf', 'docx', 'pptx'];
     const fileExt = file.name.split('.').pop().toLowerCase();
     
     if (!allowedExtensions.includes(fileExt)) {
-      setErrorMessage('Unsupported file type. Please upload a PDF or DOCX file.');
+      setErrorMessage('Unsupported file type. Please upload a PDF, DOCX, or PPTX file.');
       setStatus('error');
       return;
     }
@@ -36,7 +36,9 @@ export function useDocumentUpload(onSuccess) {
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     
     if (file.size > maxSizeBytes) {
-      setErrorMessage(`File is too large. Maximum size is ${maxSizeMB} MB.`);
+      const msg = 'File size should not exceed 10 MB for now.';
+      setErrorMessage(msg);
+      window.alert(msg);
       setStatus('error');
       return;
     }

@@ -91,7 +91,7 @@ export default function Dashboard() {
         type="file"
         ref={fileInputRef}
         style={{ display: "none" }}
-        accept=".pdf,.docx,.doc"
+        accept=".pdf,.docx,.pptx"
         onChange={handleFileChange}
       />
 
@@ -214,7 +214,7 @@ export default function Dashboard() {
                   ? "Uploading..."
                   : "Click or Drag & drop a file"}
               </div>
-              <div className="s">PDF or DOCX — up to 10MB</div>
+              <div className="s">PDF, DOCX, or PPTX — up to 10MB</div>
             </div>
           </div>
         </div>

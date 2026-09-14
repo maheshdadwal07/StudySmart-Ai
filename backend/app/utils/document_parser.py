@@ -56,6 +56,23 @@ def parse_docx(file_content: bytes) -> tuple[str, None]:
     except Exception as e:
         raise DocumentParserException(f"Failed to parse DOCX: {str(e)}")
 
+from pptx import Presentation
+
+def parse_pptx(file_content: bytes) -> tuple[str, None]:
+    """Returns (extracted_text, None)."""
+    try:
+        prs = Presentation(io.BytesIO(file_content))
+        text_chunks = []
+        for slide in prs.slides:
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and shape.text.strip():
+                    text_chunks.append(shape.text.strip())
+                    
+        extracted_text = "\n\n".join(text_chunks).strip()
+        return extracted_text, None
+    except Exception as e:
+        raise DocumentParserException(f"Failed to parse PPTX: {str(e)}")
+
 async def process_document_content(file_type: str, file_url: str, public_id: str = None) -> tuple[str, int | None]:
     """Downloads and extracts text from a given document."""
     file_content = await download_document(file_url, public_id)
@@ -64,5 +81,7 @@ async def process_document_content(file_type: str, file_url: str, public_id: str
         return parse_pdf(file_content)
     elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
         return parse_docx(file_content)
+    elif file_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        return parse_pptx(file_content)
     else:
         raise DocumentParserException(f"Unsupported file type for processing: {file_type}")

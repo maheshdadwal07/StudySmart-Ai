@@ -15,8 +15,12 @@ from app.config import settings
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
-ALLOWED_MIME_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
-ALLOWED_EXTENSIONS = [".pdf", ".docx"]
+ALLOWED_MIME_TYPES = [
+    "application/pdf", 
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+]
+ALLOWED_EXTENSIONS = [".pdf", ".docx", ".pptx"]
 
 def sanitize_filename(filename: str) -> str:
     filename = filename.replace("\\", "/").split("/")[-1]
@@ -37,8 +41,8 @@ def sanitize_filename(filename: str) -> str:
 
 @router.post("/upload", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 async def upload_file(
-    file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user)
+    current_user: dict = Depends(get_current_user),
+    file: UploadFile = File(...)
 ):
     if not file.filename:
         raise HTTPException(status_code=400, detail="Filename missing")
@@ -50,7 +54,7 @@ async def upload_file(
         ext = safe_filename[safe_filename.rindex("."):].lower()
     
     if ext not in ALLOWED_EXTENSIONS or file.content_type not in ALLOWED_MIME_TYPES:
-        raise HTTPException(status_code=400, detail="Unsupported file type. Only PDF and DOCX are allowed.")
+        raise HTTPException(status_code=400, detail="Unsupported file type. Only PDF, DOCX, and PPTX are allowed.")
     
     max_size_bytes = settings.max_upload_size_mb * 1024 * 1024
     
@@ -60,8 +64,8 @@ async def upload_file(
         
     if ext == ".pdf" and not first_chunk.startswith(b"%PDF-"):
         raise HTTPException(status_code=400, detail="Invalid PDF file content.")
-    elif ext == ".docx" and not first_chunk.startswith(b"PK\x03\x04"):
-        raise HTTPException(status_code=400, detail="Invalid DOCX file content.")
+    elif ext in [".docx", ".pptx"] and not first_chunk.startswith(b"PK\x03\x04"):
+        raise HTTPException(status_code=400, detail=f"Invalid {ext[1:].upper()} file content.")
         
     import hashlib
     hash_obj = hashlib.sha256()
@@ -81,20 +85,24 @@ async def upload_file(
     file_size_bytes = len(file_content)
     file_hash = hash_obj.hexdigest()
     
-    if ext == ".docx":
+    if ext in [".docx", ".pptx"]:
         import zipfile
         import io
         try:
             with zipfile.ZipFile(io.BytesIO(file_content)) as zf:
                 namelist = zf.namelist()
-                if "[Content_Types].xml" not in namelist or "word/document.xml" not in namelist:
+                if "[Content_Types].xml" not in namelist:
+                    raise HTTPException(status_code=400, detail=f"Invalid {ext[1:].upper()} structural requirements.")
+                if ext == ".docx" and "word/document.xml" not in namelist:
                     raise HTTPException(status_code=400, detail="Invalid DOCX structural requirements.")
+                elif ext == ".pptx" and "ppt/presentation.xml" not in namelist:
+                    raise HTTPException(status_code=400, detail="Invalid PPTX structural requirements.")
         except zipfile.BadZipFile:
-            raise HTTPException(status_code=400, detail="Invalid DOCX archive.")
+            raise HTTPException(status_code=400, detail=f"Invalid {ext[1:].upper()} archive.")
         except HTTPException:
             raise
         except Exception:
-            raise HTTPException(status_code=400, detail="Malformed DOCX file.")
+            raise HTTPException(status_code=400, detail=f"Malformed {ext[1:].upper()} file.")
     
     db = get_database()
     existing_doc = await db.documents.find_one({"user_id": current_user["_id"], "file_hash": file_hash})
