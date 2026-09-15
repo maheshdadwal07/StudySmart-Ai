@@ -86,7 +86,7 @@ export default function Sidebar({ isOpen, onClose }) {
           <div className="avatar">{user?.name?.substring(0, 2).toUpperCase() || 'U'}</div>
           <div>
             <div className="name">{user?.name || 'User'}</div>
-            <div className="plan">Pro Monthly plan</div>
+            <div className="plan">Free Plan</div>
           </div>
         </div>
       </div>

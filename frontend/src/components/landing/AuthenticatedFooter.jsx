@@ -1,13 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-export default function Footer() {
+export default function AuthenticatedFooter() {
   return (
     <footer>
       <div className="wrap">
-        <div className="footer-grid">
-          <div className="footer-brand">
-            <Link to="/" className="logo" style={{ textDecoration: 'none' }}>
+        <div 
+          className="footer-grid" 
+          style={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            justifyContent: 'space-between', 
+            gap: '40px' 
+          }}
+        >
+          <div className="footer-brand" style={{ flex: '1 1 300px', maxWidth: '500px' }}>
+            <Link to="/dashboard" className="logo" style={{ textDecoration: 'none' }}>
               <div className="logo-mark">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
                   <path d="M4 4h11l5 5v11a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="#fff" strokeWidth="1.8" strokeLinejoin="round" />
@@ -32,14 +40,11 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="footer-col">
-            <h5>Product</h5>
-            <a href="#features">Features</a>
+          <div className="footer-col" style={{ flex: '0 1 200px' }}>
+            <h5>Navigation</h5>
             <Link to="/pricing" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
-          </div>
-
-          <div className="footer-col">
-            <h5>Resources</h5>
+            <Link to="/study-mode">Study Mode</Link>
+            <Link to="/question-mode">Question Mode</Link>
             <a href="#faq">FAQ</a>
           </div>
         </div>

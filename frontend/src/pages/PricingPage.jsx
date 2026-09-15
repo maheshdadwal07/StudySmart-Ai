@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer";
+import AuthenticatedFooter from "../components/landing/AuthenticatedFooter";
 import Reveal from "../components/landing/Reveal";
 import FAQ from "../components/landing/FAQ";
 import Features from "../components/landing/Features";
@@ -188,16 +189,23 @@ export default function PricingPage() {
             </svg>
             Back
           </button>
-          <div
+          <Link
+            to="/dashboard"
+            className="logo"
             style={{
               marginLeft: "auto",
-              fontWeight: "bold",
-              fontSize: "18px",
+              textDecoration: "none",
               color: "var(--text)",
             }}
           >
+            <div className="logo-mark">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <path d="M4 4h11l5 5v11a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1z" stroke="#fff" strokeWidth="1.8" strokeLinejoin="round" />
+                <path d="M9 12h6M9 16h6M9 8h2" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
             StudySmart AI
-          </div>
+          </Link>
         </div>
       ) : (
         <Navbar />
@@ -400,7 +408,7 @@ export default function PricingPage() {
         </div>
       </section>
 
-      <Footer />
+      {user ? <AuthenticatedFooter /> : <Footer />}
     </>
   );
 }

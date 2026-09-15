@@ -264,16 +264,12 @@ p {
   overflow: hidden;
   padding: 96px 0 40px;
   background:
-    radial-gradient(
-      700px 380px at 15% -10%,
+    radial-gradient(700px 380px at 15% -10%,
       rgba(79, 70, 229, 0.1),
-      transparent 60%
-    ),
-    radial-gradient(
-      600px 340px at 100% 0%,
+      transparent 60%),
+    radial-gradient(600px 340px at 100% 0%,
       rgba(6, 182, 212, 0.1),
-      transparent 60%
-    );
+      transparent 60%);
 }
 
 .eyebrow {
@@ -413,11 +409,9 @@ p {
   max-width: 70px;
   height: 2px;
   margin-top: -28px;
-  background-image: linear-gradient(
-    90deg,
-    var(--border) 0 6px,
-    transparent 6px 12px
-  );
+  background-image: linear-gradient(90deg,
+      var(--border) 0 6px,
+      transparent 6px 12px);
   background-size: 12px 2px;
   background-repeat: repeat-x;
   position: relative;
@@ -822,11 +816,9 @@ section {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    500px 240px at 80% 0%,
-    rgba(255, 255, 255, 0.18),
-    transparent 60%
-  );
+  background: radial-gradient(500px 240px at 80% 0%,
+      rgba(255, 255, 255, 0.18),
+      transparent 60%);
 }
 
 .cta-banner h2 {
@@ -864,14 +856,22 @@ section {
 /* ---------- FOOTER ---------- */
 footer {
   border-top: 1px solid var(--border);
-  padding: 64px 0 32px;
+  padding: 56px 0 24px;
 }
 
 .footer-grid {
-  display: grid;
-  grid-template-columns: 1.6fr repeat(4, 1fr);
-  gap: 32px;
-  padding-bottom: 48px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 64px;
+  justify-content: flex-start;
+  padding-bottom: 40px;
+}
+.footer-brand {
+  flex: 1 1 240px;
+  max-width: 380px;
+}
+.footer-col {
+  flex: 0 1 120px;
 }
 
 .footer-brand p {
@@ -947,30 +947,38 @@ footer {
   .feature-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .why {
     grid-template-columns: 1fr;
   }
+
   .testi-grid {
     grid-template-columns: 1fr;
   }
+
   .pricing-grid {
     grid-template-columns: 1fr;
     max-width: 420px;
     margin: 0 auto;
   }
+
   .price-card.featured {
     transform: none;
   }
+
   .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 48px;
   }
+
   .hero h1 {
     font-size: 42px;
   }
+
   .pipeline-row {
     flex-wrap: wrap;
     row-gap: 28px;
   }
+
   .pconnector {
     display: none;
   }
@@ -980,9 +988,11 @@ footer {
   .nav-links {
     display: none;
   }
+
   .nav-mobile-toggle {
     display: block;
   }
+
   .nav-cta {
     display: none;
   }
@@ -990,7 +1000,8 @@ footer {
   /* Mobile Menu Drawer */
   .nav-mobile-menu {
     position: absolute;
-    top: 72px; /* Header height */
+    top: 72px;
+    /* Header height */
     left: 0;
     width: 100%;
     background: var(--bg);
@@ -1006,6 +1017,7 @@ footer {
       opacity: 0;
       transform: translateY(-10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -1048,35 +1060,44 @@ footer {
   .wrap {
     padding: 0 20px;
   }
+
   .hero {
     padding: 48px 0 24px;
   }
+
   .hero h1 {
     font-size: clamp(32px, 8vw, 42px);
     line-height: 1.2;
   }
+
   .hero-sub {
     font-size: 16px;
     padding: 0 10px;
   }
+
   .hero-ctas {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
   }
+
   section {
     padding: 56px 0;
   }
+
   .feature-grid {
     grid-template-columns: 1fr;
   }
+
   .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    flex-direction: column;
+    gap: 32px;
   }
+
   .cta-banner {
     padding: 44px 24px;
   }
+
   .pipeline {
     padding: 28px 18px;
   }
@@ -1086,16 +1107,12 @@ footer {
 .pricing-hero {
   padding: 80px 0 56px;
   background:
-    radial-gradient(
-      600px 280px at 50% -10%,
+    radial-gradient(600px 280px at 50% -10%,
       rgba(79, 70, 229, 0.08),
-      transparent 70%
-    ),
-    radial-gradient(
-      400px 200px at 80% 50%,
+      transparent 70%),
+    radial-gradient(400px 200px at 80% 50%,
       rgba(6, 182, 212, 0.05),
-      transparent 60%
-    );
+      transparent 60%);
 }
 
 .pricing-hero-inner {
@@ -1236,6 +1253,7 @@ footer {
 .ct-row:last-child {
   border-bottom: none;
 }
+
 .ct-row:hover {
   background: var(--card);
 }

@@ -34,7 +34,7 @@ export default function Navbar() {
           <a href="#features">Features</a>
           <a href="#why">Why StudySmart</a>
           <a href="#testimonials">Testimonials</a>
-          <Link to="/pricing">Pricing</Link>
+          <Link to="/pricing" onClick={() => window.scrollTo(0, 0)}>Pricing</Link>
           <a href="#faq">FAQ</a>
         </div>
 
@@ -86,7 +86,7 @@ export default function Navbar() {
             <a href="#testimonials" onClick={closeMenu}>
               Testimonials
             </a>
-            <Link to="/pricing" onClick={closeMenu}>
+            <Link to="/pricing" onClick={() => { closeMenu(); window.scrollTo(0, 0); }}>
               Pricing
             </Link>
             <a href="#faq" onClick={closeMenu}>

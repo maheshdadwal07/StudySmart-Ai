@@ -257,7 +257,7 @@ export default function ProfilePage() {
                 {saved.name}
               </h2>
               <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--primary)', background: 'rgba(79,70,229,0.09)', padding: '3px 10px', borderRadius: 999, border: '1px solid rgba(79,70,229,0.18)' }}>
-                Pro Monthly
+                Free Plan
               </span>
             </div>
             <p style={{ fontSize: 13.5, color: 'var(--text-muted)', margin: '5px 0 0' }}>
