@@ -140,14 +140,23 @@ export default function StudyMode() {
   const pollStatus = async (sessionId) => {
     try {
       const response = await apiFetch(`/api/ai/study/${sessionId}`);
-      const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.detail || "Polling failed.");
+        let errDetail = `HTTP ${response.status}`;
+        try {
+          const errData = await response.json();
+          errDetail = errData.detail || errDetail;
+        } catch (e) {}
+        
+        if (response.status === 404) {
+          throw new Error("not found");
+        }
+        throw new Error(errDetail);
       }
       
+      const data = await response.json();
       setSession(data);
-
+      
       if (data.status === 'Completed') {
         stopPolling();
         setAppState('success');
@@ -159,9 +168,10 @@ export default function StudyMode() {
     } catch (err) {
       console.error("Polling error:", err);
       // Stop polling on 404/403 or persistent errors
-      if (err.message.includes('not found') || err.message.includes('authorized')) {
+      const msg = err.message.toLowerCase();
+      if (msg.includes('not found') || msg.includes('authorized') || msg.includes('lost')) {
         stopPolling();
-        setErrorMsg(err.message || "Session lost.");
+        setErrorMsg("Session not found or lost.");
         setAppState('error');
       }
     }

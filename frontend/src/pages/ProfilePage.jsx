@@ -21,7 +21,7 @@ const PROFILE_STATS = [
     progress: null, progressColor: null,
   },
   {
-    title: 'Learning Progress',
+    title: 'Weekly Progress',
     value: '—',
     trend: null, trendDir: null,
     icon: TrendingUp,
@@ -145,7 +145,7 @@ export default function ProfilePage() {
           const data = await res.json();
           setStatsData({
             documents_uploaded: data.documents_uploaded,
-            learning_progress: data.learning_progress,
+            weekly_progress: data.weekly_progress !== "—" ? `${data.weekly_progress}%` : "—",
             questions_generated: data.questions_generated,
             study_sessions: data.study_sessions,
             storage_used: data.storage_used
@@ -160,7 +160,7 @@ export default function ProfilePage() {
 
   const [statsData, setStatsData] = useState({
     documents_uploaded: '—',
-    learning_progress: '—',
+    weekly_progress: '—',
     questions_generated: '—',
     study_sessions: '—',
     storage_used: '—'
@@ -168,7 +168,7 @@ export default function ProfilePage() {
 
   const stats = PROFILE_STATS.map(s => {
     if (s.title === 'Documents Uploaded') return { ...s, value: statsData.documents_uploaded };
-    if (s.title === 'Learning Progress') return { ...s, value: statsData.learning_progress };
+    if (s.title === 'Weekly Progress') return { ...s, value: statsData.weekly_progress };
     if (s.title === 'Questions Generated') return { ...s, value: statsData.questions_generated };
     if (s.title === 'Study Sessions') return { ...s, value: statsData.study_sessions };
     return s;

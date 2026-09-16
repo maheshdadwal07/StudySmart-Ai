@@ -24,10 +24,14 @@ class QuestionRequest(BaseModel):
 class QuestionSessionResponse(BaseModel):
     session_id: str
     status: str
+    quiz_status: Optional[str] = "in_progress"
     cached: Optional[bool] = False
     already_active: Optional[bool] = False
     result: Optional[Dict[str, Any]] = None
     error: Optional[Dict[str, str]] = None
+    user_answers: Optional[Dict[str, str]] = None
+    score: Optional[int] = None
+    percentage: Optional[float] = None
 
 @router.post("", response_model=QuestionSessionResponse)
 async def create_question_session(
@@ -122,7 +126,11 @@ async def create_question_session(
                     "model": settings.ai_model,
                     "prompt_version": settings.ai_prompt_version,
                     "cache_key": cache_key,
-                    "configuration": configuration
+                    "configuration": configuration,
+                    "quiz_status": "in_progress",
+                    "user_answers": {},
+                    "score": None,
+                    "percentage": None
                 }
             },
             upsert=True,
@@ -181,10 +189,32 @@ async def get_question_session(session_id: str, current_user: dict = Depends(get
         raise HTTPException(status_code=404, detail="Quiz session not found.")
         
     status = session["status"]
-    response = QuestionSessionResponse(session_id=session_id, status=status)
+    quiz_status = session.get("quiz_status", "in_progress")
+    response = QuestionSessionResponse(
+        session_id=session_id, 
+        status=status,
+        quiz_status=quiz_status,
+        user_answers=session.get("user_answers", {}),
+        score=session.get("score"),
+        percentage=session.get("percentage")
+    )
     
     if status == "Completed":
-        response.result = session.get("result")
+        result_data = session.get("result", {})
+        if quiz_status != "submitted" and result_data and "questions" in result_data:
+            # Strip correct answers and explanations for incomplete quizzes
+            stripped_questions = []
+            for q in result_data["questions"]:
+                stripped_q = q.copy()
+                stripped_q.pop("correct_answer_id", None)
+                stripped_q.pop("explanation", None)
+                stripped_questions.append(stripped_q)
+            
+            stripped_result = result_data.copy()
+            stripped_result["questions"] = stripped_questions
+            response.result = stripped_result
+        else:
+            response.result = result_data
     elif status == "Failed":
         response.error = {
             "code": session.get("error_code", "UNKNOWN_ERROR"),
@@ -192,3 +222,93 @@ async def get_question_session(session_id: str, current_user: dict = Depends(get
         }
         
     return response
+
+class ProgressRequest(BaseModel):
+    user_answers: Dict[str, str]
+
+@router.put("/{session_id}/progress", response_model=QuestionSessionResponse)
+async def save_question_progress(
+    session_id: str,
+    request: ProgressRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    db = get_database()
+    
+    session = await db.question_sessions.find_one({"_id": session_id})
+    if not session or str(session["user_id"]) != str(current_user.get("_id") or current_user.get("id")):
+        raise HTTPException(status_code=404, detail="Quiz session not found.")
+        
+    if session.get("quiz_status") == "submitted":
+        raise HTTPException(status_code=400, detail="Cannot save progress for a submitted quiz.")
+        
+    now = datetime.now(timezone.utc)
+    
+    updated_session = await db.question_sessions.find_one_and_update(
+        {"_id": session_id},
+        {
+            "$set": {
+                "user_answers": request.user_answers,
+                "quiz_status": "pending",
+                "updated_at": now
+            }
+        },
+        return_document=ReturnDocument.AFTER
+    )
+    
+    return await get_question_session(session_id, current_user)
+
+@router.post("/{session_id}/submit", response_model=QuestionSessionResponse)
+async def submit_question_session(
+    session_id: str,
+    request: ProgressRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    db = get_database()
+    
+    session = await db.question_sessions.find_one({"_id": session_id})
+    if not session or str(session["user_id"]) != str(current_user.get("_id") or current_user.get("id")):
+        raise HTTPException(status_code=404, detail="Quiz session not found.")
+        
+    if session.get("quiz_status") == "submitted":
+        raise HTTPException(status_code=400, detail="Quiz already submitted.")
+        
+    if session.get("status") != "Completed":
+        raise HTTPException(status_code=400, detail="Cannot submit a quiz that has not finished generating.")
+        
+    result_data = session.get("result", {})
+    questions = result_data.get("questions", [])
+    
+    total = len(questions)
+    correct = 0
+    
+    user_answers = request.user_answers
+    
+    for str_idx, option_id in user_answers.items():
+        try:
+            idx = int(str_idx)
+            if 0 <= idx < total:
+                if questions[idx].get("correct_answer_id") == option_id:
+                    correct += 1
+        except ValueError:
+            pass
+            
+    score = correct
+    percentage = (correct / total * 100) if total > 0 else 0
+    now = datetime.now(timezone.utc)
+    
+    updated_session = await db.question_sessions.find_one_and_update(
+        {"_id": session_id},
+        {
+            "$set": {
+                "user_answers": user_answers,
+                "quiz_status": "submitted",
+                "score": score,
+                "percentage": percentage,
+                "updated_at": now,
+                "completed_at": now
+            }
+        },
+        return_document=ReturnDocument.AFTER
+    )
+    
+    return await get_question_session(session_id, current_user)

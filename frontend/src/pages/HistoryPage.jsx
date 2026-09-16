@@ -86,16 +86,83 @@ export default function HistoryPage() {
     }
   };
 
-  const handleOpenItem = (item) => {
+  const [modalState, setModalState] = useState({ isOpen: false, targetItem: null });
+  const [deleteModalState, setDeleteModalState] = useState({ isOpen: false, targetItem: null });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleResumeConfirm = () => {
+    if (modalState.targetItem) {
+      navigate(`/question-mode?sessionId=${modalState.targetItem.session_id}`);
+    }
+    setModalState({ isOpen: false, targetItem: null });
+  };
+
+  const handleActionClick = (item) => {
     if (item.type === "Study") {
       navigate(`/study-mode?sessionId=${item.session_id}`);
     } else if (item.type === "Quiz") {
-      navigate(`/question-mode?sessionId=${item.session_id}`);
+      if (item.quiz_status === "pending" || item.quiz_status === "in_progress") {
+        setModalState({ isOpen: true, targetItem: item });
+      } else {
+        navigate(`/question-mode?sessionId=${item.session_id}`);
+      }
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModalState.targetItem || isDeleting) return;
+    
+    setIsDeleting(true);
+    try {
+      const { session_id, type } = deleteModalState.targetItem;
+      const res = await apiFetch(`/api/history/${session_id}?type=${type}`, {
+        method: "DELETE",
+      });
+      
+      if (res.ok) {
+        // Remove item from state without a full refresh
+        setItems(items.filter((item) => item.session_id !== session_id));
+        setDeleteModalState({ isOpen: false, targetItem: null });
+      } else {
+        const errorData = await res.json();
+        alert(errorData.detail || "Failed to remove history item.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("An error occurred while removing the history item.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
     <>
+      {modalState.isOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0, 0, 0, 0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
+          <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "24px", width: "100%", maxWidth: "400px", boxShadow: "var(--shadow-lg)", margin: "20px" }}>
+            <h3 style={{ margin: "0 0 12px 0", fontSize: "18px", fontWeight: 600, color: "var(--text)" }}>Resume Quiz?</h3>
+            <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "var(--text-muted)", lineHeight: "1.5" }}>This quiz is still pending. Your saved progress will be restored so you can continue where you left off.</p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", flexWrap: "wrap" }}>
+              <Button variant="ghost" onClick={() => setModalState({ isOpen: false, targetItem: null })}>Cancel</Button>
+              <Button variant="primary" onClick={handleResumeConfirm}>Resume Quiz</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {deleteModalState.isOpen && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0, 0, 0, 0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
+          <div style={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "24px", width: "100%", maxWidth: "400px", boxShadow: "var(--shadow-lg)", margin: "20px" }}>
+            <h3 style={{ margin: "0 0 12px 0", fontSize: "18px", fontWeight: 600, color: "var(--text)" }}>Remove this history item?</h3>
+            <p style={{ margin: "0 0 24px 0", fontSize: "14px", color: "var(--text-muted)", lineHeight: "1.5" }}>This will permanently delete this session and its stored data. This action cannot be undone.</p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", flexWrap: "wrap" }}>
+              <Button variant="ghost" onClick={() => setDeleteModalState({ isOpen: false, targetItem: null })} disabled={isDeleting}>Cancel</Button>
+              <Button variant="primary" onClick={handleDeleteConfirm} disabled={isDeleting} style={{ backgroundColor: "var(--error-text)", borderColor: "var(--error-text)", color: "white" }}>
+                {isDeleting ? "Removing..." : "Remove"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="page-head">
         <div>
           <h1>History</h1>
@@ -361,6 +428,9 @@ export default function HistoryPage() {
                             >
                               {item.metadata.question_count} Questions •{" "}
                               {item.metadata.difficulty}
+                              {item.quiz_status === "submitted" && item.score != null ? (
+                                ` • Score: ${item.score}/${item.metadata.question_count} (${Math.round(item.percentage || 0)}%)`
+                              ) : ""}
                             </div>
                           )}
                         {item.status !== "Completed" && (
@@ -392,11 +462,15 @@ export default function HistoryPage() {
                             backgroundColor:
                               item.type === "Study"
                                 ? "var(--success-bg)"
-                                : "var(--info-bg)",
+                                : (item.quiz_status === "pending" || item.quiz_status === "in_progress") 
+                                  ? "var(--warning-bg)" 
+                                  : "var(--info-bg)",
                             color:
                               item.type === "Study"
                                 ? "var(--success-text)"
-                                : "var(--info-text)",
+                                : (item.quiz_status === "pending" || item.quiz_status === "in_progress")
+                                  ? "var(--warning-text)"
+                                  : "var(--info-text)",
                           }}
                         >
                           {item.type === "Study" ? (
@@ -405,6 +479,7 @@ export default function HistoryPage() {
                             <HelpCircle size={14} />
                           )}
                           {item.type}
+                          {item.type === "Quiz" && (item.quiz_status === "pending" || item.quiz_status === "in_progress") ? " • Pending" : ""}
                         </div>
                       </td>
                       <td
@@ -420,15 +495,25 @@ export default function HistoryPage() {
                         )}
                       </td>
                       <td style={{ padding: "16px 20px", textAlign: "right" }}>
-                        <Button
-                          className="history-open-btn"
-                          variant="secondary"
-                          onClick={() => handleOpenItem(item)}
-                          style={{ padding: "6px 12px", fontSize: "13px" }}
-                          disabled={item.status !== "Completed"}
-                        >
-                          Open <ChevronRight size={14} />
-                        </Button>
+                        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                          <Button
+                            className="history-open-btn"
+                            variant="secondary"
+                            onClick={() => handleActionClick(item)}
+                            style={{ padding: "6px 12px", fontSize: "13px" }}
+                            disabled={item.status !== "Completed"}
+                          >
+                            {item.type === "Quiz" && (item.quiz_status === "pending" || item.quiz_status === "in_progress") ? "Resume" : "Open"} <ChevronRight size={14} />
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => setDeleteModalState({ isOpen: true, targetItem: item })}
+                            style={{ padding: "6px 12px", fontSize: "13px", color: "var(--error-text)", borderColor: "var(--error-text)", backgroundColor: "transparent" }}
+                            aria-label="Remove history item"
+                          >
+                            Remove
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

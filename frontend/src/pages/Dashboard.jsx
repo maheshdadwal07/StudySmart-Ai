@@ -18,6 +18,8 @@ export default function Dashboard() {
 
   const [documents, setDocuments] = useState([]);
   const [stats, setStats] = useState(statCardsData);
+  const [progressData, setProgressData] = useState(null);
+  const [activityData, setActivityData] = useState(null);
 
   const firstName = user?.name?.split(" ")[0] || "User";
 
@@ -51,12 +53,16 @@ export default function Dashboard() {
       const statsRes = await apiFetch("/api/dashboard/stats");
       if (statsRes.ok) {
         const statsData = await statsRes.json();
+        
+        setProgressData(statsData.progress);
+        setActivityData(statsData.activity);
+        
         setStats((prevStats) =>
           prevStats.map((s) => {
             if (s.id === "questions")
               return { ...s, value: statsData.questions_generated };
             if (s.id === "learning")
-              return { ...s, value: statsData.learning_progress };
+              return { ...s, value: statsData.learning_progress !== "—" ? `${statsData.learning_progress}%` : "—" };
             return s;
           }),
         );
@@ -150,13 +156,13 @@ export default function Dashboard() {
       <div className="grid-2col">
         {/* LEFT COLUMN */}
         <div>
-          <WeeklyActivityChart />
+          <WeeklyActivityChart activity={activityData} />
           <RecentUploads documents={documents} />
         </div>
 
         {/* RIGHT COLUMN */}
         <div>
-          <ProgressCard />
+          <ProgressCard progress={progressData} />
 
           <div className="panel">
             <div className="panel-head">

@@ -16,6 +16,9 @@ class HistoryItem(BaseModel):
     created_at: datetime
     status: str
     metadata: Dict[str, Any] = {}
+    quiz_status: Optional[str] = None
+    score: Optional[int] = None
+    percentage: Optional[float] = None
 
 class HistoryResponse(BaseModel):
     items: List[HistoryItem]
@@ -75,8 +78,24 @@ async def get_history(
         items = []
         for raw in raw_items[:limit]:
             meta = {}
-            if c_type == "Quiz" and "configuration" in raw:
-                meta = raw["configuration"]
+            quiz_status = None
+            score = None
+            percentage = None
+            
+            if c_type == "Quiz":
+                if "configuration" in raw:
+                    meta = raw["configuration"]
+                
+                quiz_status = raw.get("quiz_status")
+                if not quiz_status:
+                    if raw.get("status") == "Completed":
+                        quiz_status = "submitted"
+                    else:
+                        quiz_status = "in_progress"
+                
+                score = raw.get("score")
+                percentage = raw.get("percentage")
+                
             items.append(HistoryItem(
                 session_id=str(raw["_id"]),
                 type=c_type,
@@ -84,7 +103,10 @@ async def get_history(
                 document_name=doc_map.get(raw["document_id"], "Unknown Document"),
                 created_at=raw["created_at"],
                 status=raw["status"],
-                metadata=meta
+                metadata=meta,
+                quiz_status=quiz_status,
+                score=score,
+                percentage=percentage
             ))
             
         has_more = len(raw_items) > limit
@@ -113,8 +135,23 @@ async def get_history(
     for raw in raw_items[:limit]:
         c_type = raw.get("history_type", "Unknown")
         meta = {}
-        if c_type == "Quiz" and "configuration" in raw:
-            meta = raw["configuration"]
+        quiz_status = None
+        score = None
+        percentage = None
+        
+        if c_type == "Quiz":
+            if "configuration" in raw:
+                meta = raw["configuration"]
+            
+            quiz_status = raw.get("quiz_status")
+            if not quiz_status:
+                if raw.get("status") == "Completed":
+                    quiz_status = "submitted"
+                else:
+                    quiz_status = "in_progress"
+                    
+            score = raw.get("score")
+            percentage = raw.get("percentage")
             
         items.append(HistoryItem(
             session_id=str(raw["_id"]),
@@ -123,8 +160,35 @@ async def get_history(
             document_name=doc_map.get(raw.get("document_id"), "Unknown Document"),
             created_at=raw.get("created_at"),
             status=raw.get("status", "Unknown"),
-            metadata=meta
+            metadata=meta,
+            quiz_status=quiz_status,
+            score=score,
+            percentage=percentage
         ))
         
     has_more = len(raw_items) > limit
     return HistoryResponse(items=items, page=page, limit=limit, has_more=has_more)
+
+
+@router.delete("/{session_id}")
+async def delete_history_item(
+    session_id: str,
+    type: str = Query(..., description="Type of the session: Study or Quiz"),
+    current_user: dict = Depends(get_current_user)
+):
+    db = get_database()
+    user_id_str = str(current_user.get("_id") or current_user.get("id"))
+    
+    if type == "Study":
+        collection = db.study_sessions
+    elif type == "Quiz":
+        collection = db.question_sessions
+    else:
+        raise HTTPException(status_code=400, detail="Invalid session type")
+        
+    result = await collection.delete_one({"_id": session_id, "user_id": user_id_str})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Session not found or not owned by user")
+        
+    return {"status": "success", "message": "History item removed permanently"}
