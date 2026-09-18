@@ -18,13 +18,8 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
     
     stats = await get_user_statistics(db, user_id, user_id_str)
     
-    # Return exactly the same keys Dashboard expects
-    return {
-        "documents_uploaded": stats["documents_uploaded"],
-        "storage_used": stats["storage_used"],
-        "questions_generated": stats["questions_generated"],
-        "learning_progress": stats["learning_progress"]
-    }
+    # Return full stats payload to support Progress Page and Dashboard Activity
+    return stats
 
 @router.get("/search")
 async def global_search(

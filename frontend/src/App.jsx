@@ -14,6 +14,7 @@ import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import HistoryPage from './pages/HistoryPage'
 import UploadsPage from './pages/UploadsPage'
+import ProgressPage from './pages/ProgressPage'
 import StudyMode from './pages/StudyMode'
 import QuestionMode from './pages/QuestionMode'
 
@@ -68,6 +69,7 @@ function App() {
         <Route path="/history"   element={<HistoryPage />} />
         <Route path="/uploads"   element={<UploadsPage />} />
         <Route path="/profile"   element={<ProfilePage />} />
+        <Route path="/progress"  element={<ProgressPage />} />
         <Route path="/settings"  element={<SettingsPage />} />
       </Route>
 

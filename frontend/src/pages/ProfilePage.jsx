@@ -6,6 +6,7 @@ import {
   MapPin, Mail, Phone, GraduationCap, Target,
   Calendar, Edit2, Check, X
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import StatCard from '../components/dashboard/StatCard';
 import '../styles/dashboard.css';
 import '../styles/auth.css';
@@ -47,10 +48,7 @@ const PROFILE_STATS = [
   },
 ];
 
-/* ── Recent activity (mirrors doc-row pattern from dashboard) ── */
-const RECENT_ACTIVITY = [];
-
-/* doc-icon SVG per file type — same colours as dashboard.css doc-icon.* */
+/* ── Form field arrays for view / edit modes ── */
 const DOC_ICONS = {
   pdf: { bg: 'rgba(79,70,229,0.08)', border: 'rgba(79,70,229,0.15)', stroke: 'var(--primary)' },
   ppt: { bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.15)', stroke: 'var(--info-text)' },
@@ -115,6 +113,7 @@ function InfoRow({ icon: Icon, label, value }) {
    ============================================================ */
 export default function ProfilePage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [docCount, setDocCount] = useState(0);
 
   const INITIAL = {
@@ -137,6 +136,8 @@ export default function ProfilePage() {
     setForm(INITIAL);
   }, [user]);
 
+  const [recentActivity, setRecentActivity] = useState([]);
+
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -155,7 +156,57 @@ export default function ProfilePage() {
         console.error(e);
       }
     }
-    if (user) fetchStats();
+    
+    async function fetchRecentActivity() {
+      try {
+        const res = await apiFetch('/api/history?limit=20');
+        if (res.ok) {
+          const data = await res.json();
+          const validItems = data.items.filter(item => {
+            if (item.status !== "Completed") return false;
+            if (item.type === "Quiz" && item.quiz_status !== "submitted" && item.quiz_status !== "in_progress") return false;
+            return true;
+          });
+          
+          setRecentActivity(validItems.slice(0, 5).map(item => {
+            const dateStr = new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            
+            let metaText = "Study session completed";
+            let tag = item.type;
+            let tagClass = "tag-study";
+            
+            if (item.type === "Quiz") {
+              tagClass = "tag-quiz";
+              if (item.quiz_status === "submitted" && item.score !== null) {
+                const total = item.percentage > 0 ? Math.round(item.score / (item.percentage / 100)) : 0;
+                metaText = `Score: ${Math.round(item.percentage)}% · ${total > 0 ? total : ''} questions`;
+              } else {
+                metaText = "Pending";
+              }
+            }
+            
+            let fileType = "pdf";
+            if (item.document_name.toLowerCase().endsWith(".docx")) fileType = "docx";
+            if (item.document_name.toLowerCase().endsWith(".ppt") || item.document_name.toLowerCase().endsWith(".pptx")) fileType = "ppt";
+            
+            return {
+              type: fileType,
+              name: item.document_name,
+              meta: `${metaText} · ${dateStr}`,
+              tag: tag,
+              tagClass: tagClass
+            };
+          }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    if (user) {
+      fetchStats();
+      fetchRecentActivity();
+    }
   }, [user]);
 
   const [statsData, setStatsData] = useState({
@@ -279,7 +330,15 @@ export default function ProfilePage() {
 
       {/* Stat grid — reuse StatCard */}
       <div className="stat-grid" style={{ marginBottom: 20 }}>
-        {stats.map((stat, i) => <StatCard key={i} {...stat} />)}
+        {stats.map((stat, i) => (
+          <div 
+            key={i} 
+            onClick={stat.title === 'Weekly Progress' ? () => navigate('/progress') : undefined}
+            style={{ cursor: stat.title === 'Weekly Progress' ? 'pointer' : 'default', height: '100%' }}
+          >
+            <StatCard {...stat} />
+          </div>
+        ))}
       </div>
 
       {/* 2-column layout */}
@@ -386,15 +445,15 @@ export default function ProfilePage() {
           <div className="panel" style={{ marginBottom: 0 }}>
             <div className="panel-head">
               <h3>Recent Activity</h3>
-              <span className="link">View all</span>
+              <span className="link" onClick={() => navigate('/history')}>View all</span>
             </div>
 
-            {RECENT_ACTIVITY.length === 0 ? (
+            {recentActivity.length === 0 ? (
               <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)' }}>
                 <p style={{ fontSize: 13.5 }}>Activity history will be available soon.</p>
               </div>
             ) : (
-              RECENT_ACTIVITY.map((item, i) => (
+              recentActivity.map((item, i) => (
                 <div key={i} className="doc-row">
                   <DocTypeIcon type={item.type} />
                   <div className="doc-info">

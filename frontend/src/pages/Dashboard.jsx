@@ -149,7 +149,13 @@ export default function Dashboard() {
 
       <div className="stat-grid">
         {stats.map((stat, idx) => (
-          <StatCard key={idx} {...stat} />
+          <div 
+            key={idx} 
+            onClick={stat.id === 'learning' ? () => navigate('/progress') : undefined}
+            style={{ cursor: stat.id === 'learning' ? 'pointer' : 'default', height: '100%' }}
+          >
+            <StatCard {...stat} />
+          </div>
         ))}
       </div>
 

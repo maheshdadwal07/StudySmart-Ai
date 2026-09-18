@@ -51,8 +51,16 @@ async def get_user_statistics(db, user_id, user_id_str):
     # Progress charting data
     daily_stats = { (now - timedelta(days=i)).strftime('%Y-%m-%d'): {"correct": 0, "attempted": 0} for i in range(7) }
     
-    # Monthly chart data (30 days split into 5 periods of 6 days)
-    monthly_stats = { f"Week {i+1}": {"correct": 0, "attempted": 0} for i in range(5) }
+    # Monthly chart data (Calendar month based: Current + previous 5 months)
+    monthly_stats = {}
+    for i in range(6):
+        m = now.month - i
+        y = now.year
+        while m <= 0:
+            m += 12
+            y -= 1
+        month_key = f"{y}-{m:02d}"
+        monthly_stats[month_key] = {"correct": 0, "attempted": 0, "year": y, "month": m}
     
     # Activity tracking
     activity = {
@@ -109,11 +117,11 @@ async def get_user_statistics(db, user_id, user_id_str):
                 daily_stats[date_str]["correct"] += correct
                 daily_stats[date_str]["attempted"] += attempted
                 
-        if days_ago < 30:
-            period_idx = days_ago // 6 # 0 to 4, where 0 is the most recent 6 days
-            week_key = f"Week {5 - period_idx}" # Week 5 is the most recent
-            monthly_stats[week_key]["correct"] += correct
-            monthly_stats[week_key]["attempted"] += attempted
+        # Calendar month matching
+        month_key = f"{dt.year}-{dt.month:02d}"
+        if month_key in monthly_stats:
+            monthly_stats[month_key]["correct"] += correct
+            monthly_stats[month_key]["attempted"] += attempted
 
     # Format progress values
     learning_progress = round((overall_correct / overall_attempted) * 100) if overall_attempted > 0 else "—"
@@ -136,11 +144,19 @@ async def get_user_statistics(db, user_id, user_id_str):
         })
         
     progress_monthly = []
-    for week_key in sorted(monthly_stats.keys()):
-        stats = monthly_stats[week_key]
+    # Sort keys chronologically (e.g. '2026-04' -> '2026-09')
+    for month_key in sorted(monthly_stats.keys()):
+        stats = monthly_stats[month_key]
         val = round((stats["correct"] / stats["attempted"]) * 100) if stats["attempted"] > 0 else None
+        
+        month_name = datetime(stats["year"], stats["month"], 1).strftime('%b')
+        if stats["year"] != now.year:
+            label = f"{month_name} '{str(stats['year'])[-2:]}"
+        else:
+            label = month_name
+            
         progress_monthly.append({
-            "label": week_key,
+            "label": label,
             "value": val
         })
 
